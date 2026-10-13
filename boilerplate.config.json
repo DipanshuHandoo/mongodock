@@ -1,10 +1,19 @@
 {
-  "language": "ts",
+  "language": "js",
   "browser": false,
-  "globalName": "NpmPackageBoilerplate",
-  "entries": { "index": "src/index" },
+  "globalName": "Mongodock",
+  "entries": {
+    "index": "src/index"
+  },
   "nodeTarget": "node22",
   "browserTarget": ["es2022", "chrome110", "firefox110", "safari16"],
-  "sizeBudget": { "packedKb": 40, "unpackedKb": 160 },
-  "coverage": { "lines": 90, "branches": 80, "functions": 85 }
+  "sizeBudget": {
+    "packedKb": 110,
+    "unpackedKb": 480
+  },
+  "coverage": {
+    "lines": 90,
+    "branches": 80,
+    "functions": 85
+  }
 }

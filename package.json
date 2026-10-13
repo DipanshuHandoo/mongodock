@@ -1,22 +1,23 @@
 {
-  "name": "npm-package-boilerplate",
-  "version": "0.1.0",
-  "description": "Production-grade boilerplate for building, verifying and releasing npm packages.",
+  "name": "@dipanshuhandoo/mongodock",
+  "version": "0.0.0",
+  "description": "Connection-aware Mongoose service toolkit with bounded processing and explicit lifecycle contracts.",
   "keywords": [
-    "npm",
-    "boilerplate",
-    "template",
-    "retry"
+    "mongoose",
+    "mongodb",
+    "database",
+    "bulk",
+    "streaming"
   ],
   "license": "MIT",
   "author": "Dipanshu Handoo",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/DipanshuHandoo/npm-package-boilerplate.git"
+    "url": "git+https://github.com/DipanshuHandoo/mongodock.git"
   },
-  "homepage": "https://github.com/DipanshuHandoo/npm-package-boilerplate#readme",
+  "homepage": "https://github.com/DipanshuHandoo/mongodock#readme",
   "bugs": {
-    "url": "https://github.com/DipanshuHandoo/npm-package-boilerplate/issues"
+    "url": "https://github.com/DipanshuHandoo/mongodock/issues"
   },
   "type": "module",
   "sideEffects": false,
@@ -51,12 +52,11 @@
     "provenance": true
   },
   "scripts": {
-    "init": "node scripts/init.mjs",
-    "test:template": "node --test scripts/variants/tests/*.test.mjs",
     "clean": "node scripts/clean.mjs",
     "build": "node scripts/build.mjs",
     "test": "node scripts/test.mjs",
     "test:coverage": "node scripts/test.mjs --coverage",
+    "test:integration": "node scripts/test-integration.mjs",
     "lint": "node scripts/run.mjs --bin @biomejs/biome biome lint --error-on-warnings .",
     "format": "node scripts/run.mjs --bin @biomejs/biome biome format --write .",
     "format:check": "node scripts/run.mjs --bin @biomejs/biome biome format .",
@@ -70,6 +70,12 @@
     "version": "changeset version && npm install --package-lock-only --ignore-scripts",
     "prepublishOnly": "node scripts/release.mjs --prepublish-guard"
   },
+  "dependencies": {
+    "@dipanshuhandoo/async-slot-pool": "^1.0.1"
+  },
+  "peerDependencies": {
+    "mongoose": "^8.24.5 || ^9.11.2"
+  },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",
     "@biomejs/biome": "^2.5.15",
@@ -77,6 +83,7 @@
     "@types/node": "^22.20.5",
     "esbuild": "^0.28.2",
     "publint": "^0.3.25",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "mongoose": "9.11.2"
   }
 }

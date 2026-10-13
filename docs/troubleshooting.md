@@ -1,15 +1,19 @@
 # Troubleshooting
 
-**`ERR_REQUIRE_ESM` or "Cannot use import statement"** — use the matching syntax: `import` for
-ESM, `require` for CommonJS. Both resolve through the package `exports` map.
+**No createMongoService export:** Phase 1 is foundation-only. Database factory
+and operations arrive in subsequent phases; the old withRetry demo is removed.
 
-**TypeScript cannot find types** — use `moduleResolution` `node16`, `nodenext` or `bundler`.
-The legacy `node10` resolution is not supported because the package uses `exports`.
+**Named config rejected:** Set defaultConnection to an existing name. Do not
+combine top-level uri/options with connections.
 
-**Retries never stop** — an `AbortSignal` is the only way to cancel; pass one. Also check that
-`retries` is finite and that `shouldRetry` eventually returns `false`.
+**Caller-owned connection rejected:** Set bufferCommands false on the connection
+and ensure it exposes the Mongoose public connection contract. Native lifecycle
+management is not implemented by normalization.
 
-**Retries happen too fast/slow in tests** — set `jitter: false` and small `minDelayMs`/`maxDelayMs`.
+**Integration prerequisites missing:** Linux needs a running Docker daemon.
+Windows fixtures download verified native binaries. Supply an explicitly opted-in
+isolated replica-set URI if automatic provisioning is unavailable. Missing
+prerequisites are an integration failure, not a skipped passing check.
 
-**A hook seems ignored** — exceptions thrown from `onRetry` are swallowed by design; log inside
-the hook itself.
+**URI or native error contains secrets:** Do not log normalized config or raw
+causes. Use toSafeDiagnostic for minimal metadata.

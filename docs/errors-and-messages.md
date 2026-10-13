@@ -1,13 +1,20 @@
-# Errors and messages
+# Errors and diagnostics
 
-Every error thrown deliberately by this package extends `PackageError` and has a stable `code`.
-Branch on `code` or `instanceof`, never on message text.
+`MongoDockError(code, message, options?)` extends Error and preserves
+`options.cause`. Default database outcome is `notDispatched`; invocation outcome
+is `failed`. Explicit outcomes distinguish committed database success from a
+failed post-execution invocation. Optional operationId/connection identify work.
 
-| Class | `code` | Extra fields | When |
-| --- | --- | --- | --- |
-| `InvalidOptionError` | `ERR_INVALID_OPTION` | | An option has an invalid value; thrown before `fn` runs |
-| `RetryExhaustedError` | `ERR_RETRY_EXHAUSTED` | `attempts` | All attempts failed; `cause` is the last error |
-| `AbortedError` | `ERR_ABORTED` | | The `AbortSignal` fired; `cause` is the signal reason |
+`ConfigurationError` uses `ERR_CONFIGURATION`; `InvalidOptionError` uses
+`ERR_INVALID_OPTION`. Shared ErrorCode declarations reserve the remaining
+connection/model/veto/hook/abort/shutdown/bulk/transaction codes for later phases.
+No unimplemented error subclasses are exported.
 
-Errors thrown by your own function are never swallowed: they surface either as the `cause` of
-`RetryExhaustedError` or, when `shouldRetry` returns `false`, unchanged.
+`isMongoDockError` narrows package errors. Native Mongoose errors will retain
+their original codes/details in later operations, not be erased by a generic
+wrapper.
+
+`toSafeDiagnostic(error)` does not serialize native messages or causes. For
+unrecognized errors it reports `ERR_DATABASE` and uncertain outcome; this is a
+diagnostic classification, not a returned database success. Raw error/cause
+objects can contain credentials and must not be logged without redaction.

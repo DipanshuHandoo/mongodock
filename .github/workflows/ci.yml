@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   verify:
-    name: verify (${{ matrix.os }}, node ${{ matrix.node-version }})
+    name: verify (${{ matrix.os }}, node ${{ matrix.node-version }}, mongoose ${{ matrix.mongoose }})
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     strategy:
@@ -23,6 +23,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest]
         node-version: [22, 24]
+        mongoose: [8.24.5, 9.11.2]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -32,6 +33,8 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: npm
       - run: npm ci
+      - name: Select tested Mongoose peer without changing the lockfile
+        run: npm install --no-save --package-lock=false --ignore-scripts mongoose@${{ matrix.mongoose }}
       - name: Install Chromium (browser-enabled packages only)
         if: hashFiles('scripts/check-browser.mjs') != ''
         run: npx playwright install --with-deps chromium

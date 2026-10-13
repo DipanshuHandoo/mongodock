@@ -1,26 +1,26 @@
-# API reference
+# API reference: Phase 1
 
-Everything below is exported from the package root. Private modules are not part of the API.
+All APIs below are available from the root export in ESM and CommonJS.
+Private source imports are unsupported.
 
-## `withRetry<T>(fn, options?): Promise<T>`
+| Export | Contract |
+| --- | --- |
+| normalizeConfig(config) | Validates and freezes normalized wrapper configuration; no network I/O |
+| normalizeRetry(setting?, hasBeforeRetry?) | Validates a single effective retry policy; no retry execution |
+| normalizeBatchOptions(options?) | Validates native versus batched controls; no input consumption or writes |
+| DEFAULTS | Frozen default limit values |
+| HOOK_NAMES | Frozen supported registration names |
+| MongoDockError | Control error with code, cause, and database/invocation outcomes |
+| ConfigurationError | Invalid setup, ERR_CONFIGURATION |
+| InvalidOptionError | Invalid operation option, ERR_INVALID_OPTION |
+| isMongoDockError(value) | Instance type guard for package control errors |
+| toSafeDiagnostic(error) | Frozen diagnostic excluding messages, documents, URIs and causes |
 
-Runs `fn(attempt)` (1-based attempt number) until it succeeds or the retry budget is spent.
-See [Configuration](configuration.md) for `options` and the [Retry guide](retry.md).
+Root declarations include config, normalized config, hooks, plugins, retry
+settings, operation context, bulk report, batch/seed options, error/outcome types.
+Generic FindInput/CreateInput/MutationInput/BulkInput and page/envelope types
+describe future input contracts without exporting runtime methods. No declaration claims an executable
+factory or operation exists before its feature phase.
 
-## `computeDelay(retryIndex, options, random?): number`
-
-Pure helper returning the delay for a 0-based retry index. `options` requires `minDelayMs`,
-`maxDelayMs`, `factor` and `jitter`; `random` defaults to `Math.random` and exists for tests.
-
-## `isPackageError(value): value is PackageError`
-
-Type guard for any error thrown by this package.
-
-## Error classes
-
-`PackageError` (base, has `code`), `InvalidOptionError`, `RetryExhaustedError` (`attempts`),
-`AbortedError`. Details in [Errors and messages](errors-and-messages.md).
-
-## Types
-
-`RetryOptions`, `RetryInfo`, `ErrorCode`.
+Native causes are preserved and sensitive; safe diagnostics are intentionally
+minimal. See [Errors](errors-and-messages.md) and [Configuration](configuration.md).

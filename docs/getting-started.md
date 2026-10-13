@@ -1,41 +1,23 @@
 # Getting started
 
-## Requirements
+The package is under development. Phase 1 exposes configuration normalization
+and errors, not a database service. Registry publication is not implied.
 
-Node.js >= 22.18.0. The package ships ESM and CommonJS builds with TypeScript declarations.
-
-## Install
-
-```sh
-npm install npm-package-boilerplate
-```
-
-## First call
+From a checkout, install dependencies with `npm ci`, then build with
+`npm run build`. `npm run test:package` installs a real tarball into an isolated
+consumer and exercises ESM, CommonJS, TypeScript, and offline examples.
 
 ```js
-import { withRetry } from "npm-package-boilerplate";
+import { normalizeConfig } from "@dipanshuhandoo/mongodock";
 
-const result = await withRetry(async (attempt) => callService(attempt));
+const config = normalizeConfig({
+  connections: {
+    primary: { uri: "mongodb://localhost:27017/primary" },
+    reporting: { uri: "mongodb://localhost:27017/reporting" },
+  },
+  defaultConnection: "primary",
+});
 ```
 
-```js
-// CommonJS
-const { withRetry } = require("npm-package-boilerplate");
-```
-
-<!-- browser:start -->
-## Browser
-
-A global-script build is published at `dist/browser/index.min.js` and exposes
-`NpmPackageBoilerplate`:
-
-```html
-<script src="https://unpkg.com/npm-package-boilerplate/dist/browser/index.min.js"></script>
-```
-
-<!-- browser:end -->
-## Next steps
-
-- [Retry guide](retry.md) for backoff, cancellation and hooks
-- [Configuration](configuration.md) for every option and default
-- [Errors and messages](errors-and-messages.md)
+No network operation occurs. Factory/model lifecycle arrives in Phase 2; see
+[Configuration](configuration.md) and [Testing](testing.md) for today's APIs.

@@ -1,13 +1,15 @@
-// CommonJS consumer fixture: compiled against the installed tarball with module=nodenext.
-import pkg = require("npm-package-boilerplate");
+import pkg = require("@dipanshuhandoo/mongodock");
 
-const value: Promise<number> = pkg.withRetry(async (attempt) => attempt, { retries: 1 });
-const options: pkg.RetryOptions = { retries: 1 };
-
-declare const error: unknown;
-if (pkg.isPackageError(error)) {
-  const code: string = error.code;
+const input: pkg.MongoServiceConfig = { uri: "mongodb://localhost/test" };
+const config: pkg.NormalizedConfig = pkg.normalizeConfig(input);
+const hooks: pkg.Hooks = { beforeRetry: () => false };
+const error = new pkg.ConfigurationError("Invalid input");
+if (pkg.isMongoDockError(error)) {
+  const code: pkg.ErrorCode = error.code;
   void code;
 }
-void value;
-void options;
+void config;
+void hooks;
+const service: pkg.MongoService = pkg.createMongoService({ uri: "mongodb://localhost/test" });
+const status: pkg.ConnectionStatus = service.getStatus();
+void status;
