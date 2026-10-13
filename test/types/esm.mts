@@ -5,7 +5,7 @@ import {
   type RetryOptions,
   RetryExhaustedError,
   withRetry,
-} from "npm-package-boilerplate";
+} from "@dipanshuhandoo/mongodock";
 
 const options: RetryOptions = { retries: 1, minDelayMs: 1, jitter: false };
 

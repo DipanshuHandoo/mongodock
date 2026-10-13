@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { createRequire } from "node:module";
-import { withRetry } from "npm-package-boilerplate";
+import { withRetry } from "@dipanshuhandoo/mongodock";
 
 // Retry only failures that are safe and worth repeating (here: HTTP 429/5xx style errors).
 const isTransient = (error) => error?.status === 429 || error?.status >= 500;
@@ -19,7 +19,7 @@ assert.deepEqual(response, { status: 200 });
 assert.equal(calls, 3);
 
 // The same package works from CommonJS.
-const cjs = createRequire(import.meta.url)("npm-package-boilerplate");
+const cjs = createRequire(import.meta.url)("@dipanshuhandoo/mongodock");
 assert.equal(typeof cjs.withRetry, "function");
 assert.equal(await cjs.withRetry(async () => "cjs-ok"), "cjs-ok");
 

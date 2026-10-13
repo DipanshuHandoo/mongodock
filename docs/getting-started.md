@@ -7,33 +7,22 @@ Node.js >= 22.18.0. The package ships ESM and CommonJS builds with TypeScript de
 ## Install
 
 ```sh
-npm install npm-package-boilerplate
+npm install @dipanshuhandoo/mongodock
 ```
 
 ## First call
 
 ```js
-import { withRetry } from "npm-package-boilerplate";
+import { withRetry } from "@dipanshuhandoo/mongodock";
 
 const result = await withRetry(async (attempt) => callService(attempt));
 ```
 
 ```js
 // CommonJS
-const { withRetry } = require("npm-package-boilerplate");
+const { withRetry } = require("@dipanshuhandoo/mongodock");
 ```
 
-<!-- browser:start -->
-## Browser
-
-A global-script build is published at `dist/browser/index.min.js` and exposes
-`NpmPackageBoilerplate`:
-
-```html
-<script src="https://unpkg.com/npm-package-boilerplate/dist/browser/index.min.js"></script>
-```
-
-<!-- browser:end -->
 ## Next steps
 
 - [Retry guide](retry.md) for backoff, cancellation and hooks

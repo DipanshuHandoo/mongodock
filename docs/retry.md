@@ -40,4 +40,4 @@ throwing hook never alters retry behavior.
 | aborted | rejects `AbortedError` |
 | bad options | rejects `InvalidOptionError` |
 
-Example: [`examples/full-tour.mjs`](https://github.com/DipanshuHandoo/npm-package-boilerplate/blob/main/examples/full-tour.mjs).
+Example: [`examples/full-tour.mjs`](https://github.com/DipanshuHandoo/mongodock/blob/main/examples/full-tour.mjs).

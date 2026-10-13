@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { withRetry } from "npm-package-boilerplate";
+import { withRetry } from "@dipanshuhandoo/mongodock";
 
 let calls = 0;
 const result = await withRetry(

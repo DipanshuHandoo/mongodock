@@ -5,7 +5,7 @@ import {
   isPackageError,
   RetryExhaustedError,
   withRetry,
-} from "npm-package-boilerplate";
+} from "@dipanshuhandoo/mongodock";
 
 console.log("1. Success after transient failures, with a logging hook");
 const retries = [];

@@ -1,22 +1,17 @@
 {
-  "name": "npm-package-boilerplate",
-  "version": "0.1.0",
-  "description": "Production-grade boilerplate for building, verifying and releasing npm packages.",
-  "keywords": [
-    "npm",
-    "boilerplate",
-    "template",
-    "retry"
-  ],
+  "name": "@dipanshuhandoo/mongodock",
+  "version": "0.0.0",
+  "description": "Describe your package",
+  "keywords": [],
   "license": "MIT",
   "author": "Dipanshu Handoo",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/DipanshuHandoo/npm-package-boilerplate.git"
+    "url": "git+https://github.com/DipanshuHandoo/mongodock.git"
   },
-  "homepage": "https://github.com/DipanshuHandoo/npm-package-boilerplate#readme",
+  "homepage": "https://github.com/DipanshuHandoo/mongodock#readme",
   "bugs": {
-    "url": "https://github.com/DipanshuHandoo/npm-package-boilerplate/issues"
+    "url": "https://github.com/DipanshuHandoo/mongodock/issues"
   },
   "type": "module",
   "sideEffects": false,
@@ -51,8 +46,6 @@
     "provenance": true
   },
   "scripts": {
-    "init": "node scripts/init.mjs",
-    "test:template": "node --test scripts/variants/tests/*.test.mjs",
     "clean": "node scripts/clean.mjs",
     "build": "node scripts/build.mjs",
     "test": "node scripts/test.mjs",
