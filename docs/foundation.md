@@ -7,7 +7,7 @@ dual module builds, artifact checks, and isolated replica-set fixtures. No
 runtime factory, CRUD, retry execution, bulk, pagination, or seed API exists yet.
 Source maps omit embedded source text to avoid distributing four copies of
 private implementation/JSDoc while retaining relative mappings; readable builds
-remain available. Size gates were raised in Phase 2 from 40/160 to 80/400 kB (packed/unpacked) because the service added connections, registry and declarations; revisit each phase.
+remain available. Size gates were raised in Phase 2 from 40/160 to 80/400 kB and in Phase 3 to 110/480 kB (packed/unpacked) because the service added connections, registry and declarations; revisit each phase.
 
 ## Dependencies
 

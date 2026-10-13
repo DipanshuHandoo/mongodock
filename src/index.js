@@ -9,10 +9,13 @@ export { createMongoService } from "./create-mongo-service.js";
 export {
   ConfigurationError,
   ConnectionError,
+  HookError,
   InvalidOptionError,
   isMongoDockError,
   ModelRegistrationError,
   MongoDockError,
+  OperationAbortedError,
+  OperationVetoError,
   ShutdownTimeoutError,
   toSafeDiagnostic,
 } from "./errors.js";

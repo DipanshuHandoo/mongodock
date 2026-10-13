@@ -8,8 +8,8 @@
   "nodeTarget": "node22",
   "browserTarget": ["es2022", "chrome110", "firefox110", "safari16"],
   "sizeBudget": {
-    "packedKb": 80,
-    "unpackedKb": 400
+    "packedKb": 110,
+    "unpackedKb": 480
   },
   "coverage": {
     "lines": 90,

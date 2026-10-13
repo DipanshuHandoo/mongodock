@@ -6,6 +6,11 @@ only, not implemented methods.
 
 - [Getting started](getting-started.md)
 - [Configuration](configuration.md)
+- [Connections](connections.md)
+- [Models](models.md)
+- [Hooks](hooks.md)
+- [Plugins](plugins.md)
+- [Retries](retries.md)
 - [API reference](api-reference.md)
 - [Errors and diagnostics](errors-and-messages.md)
 - [Foundation](foundation.md)

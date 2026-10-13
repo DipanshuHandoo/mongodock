@@ -79,3 +79,28 @@ void states;
 void named;
 void model;
 void pending;
+
+import {
+  HookError,
+  type Hooks as ServiceHooks,
+  OperationAbortedError,
+  OperationVetoError,
+  type Plugin,
+} from "@dipanshuhandoo/mongodock";
+
+const pluginHooks: ServiceHooks = {
+  beforeRetry: ({ attempt }) => attempt < 2,
+  onHookError: ({ hookName }) => {
+    void hookName;
+  },
+};
+const plugin: Plugin = { name: "p", hooks: pluginHooks };
+const hookError = new HookError("x", { hookName: "beforeOperation", scope: "service" });
+const scope: string | undefined = hookError.scope;
+// @ts-expect-error Unknown hooks are rejected.
+const badHooks: ServiceHooks = { nope() {} };
+void plugin;
+void scope;
+void badHooks;
+void OperationVetoError;
+void OperationAbortedError;

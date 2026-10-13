@@ -2,36 +2,19 @@ import { normalizeConfig } from "./config.js";
 import { createConnectionManager } from "./connections/manager.js";
 import { ConnectionError } from "./errors.js";
 import { createModelRegistry } from "./models/registry.js";
+import { createExecutor } from "./hooks/pipeline.js";
+
+/** @type {WeakMap<object, { executor: ReturnType<typeof createExecutor>, config: import("./types.js").NormalizedConfig }>} */
+const internals = new WeakMap();
 
 /**
- * Hook failures never escape the notifier; they are routed to onHookError.
- * @param {import("./types.js").NormalizedConfig} config
+ * Internal access for operation modules; not part of the public package surface.
+ * @param {import("./types.js").MongoService} service
  */
-function createNotifier(config) {
-  /** @param {unknown} error @param {string} hookName @param {string} scope */
-  const report = (error, hookName, scope) => {
-    try {
-      const handler = config.hooks.onHookError;
-      Promise.resolve(handler?.({ error, hookName, scope })).catch(() => undefined);
-    } catch {
-      // onHookError itself failed; nothing further can be reported.
-    }
-  };
-  return (/** @type {string} */ hookName, /** @type {unknown} */ status) => {
-    const sources = [
-      ...config.plugins.map((plugin) => [plugin.name, plugin.hooks]),
-      ["service", config.hooks],
-    ];
-    for (const [scope, hooks] of /** @type {Array<[string, any]>} */ (sources)) {
-      const hook = hooks[hookName];
-      if (typeof hook !== "function") continue;
-      try {
-        Promise.resolve(hook(status)).catch((error) => report(error, hookName, scope));
-      } catch (error) {
-        report(error, hookName, scope);
-      }
-    }
-  };
+export function getInternals(service) {
+  const found = internals.get(service);
+  if (!found) throw new TypeError("Not a MongoService created by createMongoService");
+  return found;
 }
 
 /**
@@ -42,10 +25,18 @@ function createNotifier(config) {
  */
 export function createMongoService(input = {}, internal = {}) {
   const config = normalizeConfig(input);
+  /** @type {ReturnType<typeof createExecutor>} */
+  let executor;
   const manager = createConnectionManager({
     config,
-    notify: createNotifier(config),
+    notify: (hookName, status) => {
+      executor.observe(hookName, status).catch(() => undefined);
+    },
     createConnection: internal.createConnection,
+  });
+  executor = createExecutor({
+    config,
+    admit: (name, resource) => manager.admit(name, resource),
   });
   /** @type {Map<string, ReturnType<typeof createModelRegistry>>} */
   const registries = new Map();
@@ -92,7 +83,7 @@ export function createMongoService(input = {}, internal = {}) {
     return view;
   }
 
-  return Object.freeze({
+  const service = Object.freeze({
     ...defaultView(),
     defaultConnection: config.defaultConnection,
     connect: (/** @type {string} */ name = config.defaultConnection) => manager.connect(name),
@@ -108,4 +99,6 @@ export function createMongoService(input = {}, internal = {}) {
     listConnections: () => manager.names(),
     use,
   });
+  internals.set(service, { executor, config });
+  return service;
 }

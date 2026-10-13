@@ -84,6 +84,36 @@ export class ShutdownTimeoutError extends MongoDockError {
   }
 }
 
+export class OperationVetoError extends MongoDockError {
+  /** @param {string} message @param {ErrorOptions & ErrorContext} [options] */
+  constructor(message, options) {
+    super("ERR_OPERATION_VETO", message, options);
+  }
+}
+
+export class OperationAbortedError extends MongoDockError {
+  /** @param {string} message @param {ErrorOptions & ErrorContext} [options] */
+  constructor(message, options) {
+    super("ERR_ABORTED", message, { invocationOutcome: "cancelled", ...options });
+  }
+}
+
+export class HookError extends MongoDockError {
+  /**
+   * @param {string} message
+   * @param {ErrorOptions & ErrorContext & { hookName?: string, scope?: string, errors?: readonly unknown[], original?: unknown }} [options]
+   */
+  constructor(message, options = {}) {
+    super("ERR_HOOK", message, options);
+    this.hookName = options.hookName;
+    this.scope = options.scope;
+    /** Every hook failure that could not be delivered to onHookError. */
+    this.errors = Object.freeze([...(options.errors ?? [])]);
+    /** The database/operation failure that was in flight, when any. */
+    this.original = options.original;
+  }
+}
+
 /** @param {unknown} value @returns {value is MongoDockError} */
 export function isMongoDockError(value) {
   return value instanceof MongoDockError;

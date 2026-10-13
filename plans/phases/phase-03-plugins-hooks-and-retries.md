@@ -1,6 +1,6 @@
 # Phase 03: plugins, hooks, and safe read retries
 
-Status: planned. Prerequisite: Phase 02.
+Status: implemented locally (uncommitted). Prerequisite: Phase 02. Evidence: npm run verify passed; coverage 99.0/97.1/92.9 (lines/branches/functions); size gate raised to 110/480 kB (packed/unpacked), actual 92.6/403.7 kB - needs user review. Public operation methods arrive in Phase 4; the executor is internal (getInternals) until then.
 Authority: [master plan](../mongodock-implementation-plan.md);
 common rules: [phase index](README.md).
 

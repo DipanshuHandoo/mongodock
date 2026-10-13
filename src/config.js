@@ -105,6 +105,8 @@ function hooks(value = {}) {
   return Object.freeze({ ...input });
 }
 
+export const normalizeHooks = hooks;
+
 /** @param {unknown} value @returns {string} */
 function name(value) {
   if (typeof value !== "string" || !/^[A-Za-z][A-Za-z0-9_-]{0,63}$/.test(value)) {

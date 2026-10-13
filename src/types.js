@@ -26,6 +26,7 @@
  * @property {string} [model]
  * @property {string} [correlationId]
  * @property {number} attempt
+ * @property {number} startedAt Epoch milliseconds when the logical operation began.
  * @property {AbortSignal} signal
  * @property {Readonly<Record<string, unknown>>} metadata
  *
@@ -34,6 +35,7 @@
  * @property {import("./errors.js").DatabaseOutcome} databaseOutcome
  * @property {import("./errors.js").InvocationOutcome} invocationOutcome
  * @property {unknown} [error]
+ * @property {unknown} [result]
  *
  * @typedef {object} RetryContext
  * @property {number} attempt
