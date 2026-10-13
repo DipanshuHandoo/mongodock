@@ -40,6 +40,50 @@ export class InvalidOptionError extends MongoDockError {
   }
 }
 
+/**
+ * @typedef {object} ConnectionOutcome
+ * @property {string} connection
+ * @property {"fulfilled" | "rejected"} status
+ * @property {unknown} [error]
+ */
+
+export class ConnectionError extends MongoDockError {
+  /**
+   * @param {string} message
+   * @param {ErrorOptions & ErrorContext & { outcomes?: readonly ConnectionOutcome[] }} [options]
+   */
+  constructor(message, options = {}) {
+    super("ERR_CONNECTION", message, options);
+    this.outcomes = Object.freeze([...(options.outcomes ?? [])]);
+  }
+}
+
+export class ModelRegistrationError extends MongoDockError {
+  /** @param {string} message @param {ErrorOptions & ErrorContext} [options] */
+  constructor(message, options) {
+    super("ERR_MODEL_REGISTRATION", message, options);
+  }
+}
+
+/**
+ * @typedef {object} PendingWork
+ * @property {string} connection
+ * @property {string} kind
+ * @property {number} count
+ */
+
+export class ShutdownTimeoutError extends MongoDockError {
+  /**
+   * @param {string} message
+   * @param {ErrorOptions & ErrorContext & { pending?: readonly PendingWork[], outcomes?: readonly ConnectionOutcome[] }} [options]
+   */
+  constructor(message, options = {}) {
+    super("ERR_SHUTDOWN_TIMEOUT", message, { databaseOutcome: "uncertain", ...options });
+    this.pending = Object.freeze([...(options.pending ?? [])]);
+    this.outcomes = Object.freeze([...(options.outcomes ?? [])]);
+  }
+}
+
 /** @param {unknown} value @returns {value is MongoDockError} */
 export function isMongoDockError(value) {
   return value instanceof MongoDockError;

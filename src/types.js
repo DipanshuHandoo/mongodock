@@ -46,7 +46,7 @@
  * @property {unknown} error
  * @property {string} hookName
  * @property {string} scope
- * @property {OperationContext} context
+ * @property {OperationContext} [context] Absent for connection lifecycle events.
  *
  */
 /**
@@ -77,6 +77,43 @@
  * @property {"idle" | "connecting" | "ready" | "closing" | "closed" | "failed"} state
  * @property {number} readyState
  * @property {boolean} owned
+ * @property {{code: string, databaseOutcome?: string}} [error] Credential-safe last failure.
+ *
+ * @typedef {object} ModelDefinition
+ * @property {string} [name]
+ * @property {import("mongoose").Schema} [schema]
+ * @property {string} [collection]
+ * @property {Record<string, unknown>} [options]
+ * @property {import("mongoose").Model<any>} [model]
+ *
+ * @typedef {object} ConnectionView
+ * @property {string} name
+ * @property {() => Promise<ConnectionStatus>} connect
+ * @property {() => Promise<ConnectionStatus>} disconnect
+ * @property {() => Connection} getConnection
+ * @property {() => boolean} isConnected
+ * @property {() => Readonly<ConnectionStatus>} getStatus
+ * @property {(definition: ModelDefinition) => import("mongoose").Model<any>} registerModel
+ * @property {(definitions: readonly ModelDefinition[]) => readonly import("mongoose").Model<any>[]} registerModels
+ * @property {<T = any>(name: string) => import("mongoose").Model<T>} getModel
+ * @property {(name: string) => boolean} hasModel
+ * @property {() => readonly string[]} listModels
+ * @property {(name: string) => boolean} unregisterModel
+ *
+ * @typedef {object} MongoServiceExtras
+ * @property {string} defaultConnection
+ * @property {(name?: string) => Promise<ConnectionStatus>} connect
+ * @property {(name?: string) => Promise<ConnectionStatus>} disconnect
+ * @property {() => Promise<readonly ConnectionStatus[]>} connectAll
+ * @property {() => Promise<readonly ConnectionStatus[]>} disconnectAll
+ * @property {(name?: string) => Connection} getConnection
+ * @property {(name?: string) => boolean} isConnected
+ * @property {(name?: string) => Readonly<ConnectionStatus>} getStatus
+ * @property {() => readonly Readonly<ConnectionStatus>[]} listStatuses
+ * @property {() => readonly string[]} listConnections
+ * @property {(name: string) => ConnectionView} use
+ *
+ * @typedef {Omit<ConnectionView, "connect" | "disconnect" | "getConnection" | "isConnected" | "getStatus"> & MongoServiceExtras} MongoService
  *
  * @typedef {object} Limits
  * @property {number} [readLimit]

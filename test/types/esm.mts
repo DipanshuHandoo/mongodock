@@ -59,3 +59,23 @@ const invalidBulk: BulkInput<Page> = {
 void query;
 void batchedBulk;
 void invalidBulk;
+
+import {
+  createMongoService,
+  type ConnectionView,
+  ShutdownTimeoutError,
+} from "@dipanshuhandoo/mongodock";
+
+const service = createMongoService({ uri: "mongodb://localhost/test" });
+const view: ConnectionView = service.use("default");
+const states: boolean = service.isConnected();
+const named = service.getStatus("default").state;
+const model = view.getModel<{ title: string }>("Page");
+const timeout = new ShutdownTimeoutError("late");
+const pending: readonly { kind: string }[] = timeout.pending;
+// @ts-expect-error Unknown model definitions need a name and schema or a model.
+service.registerModel({ collection: 1 });
+void states;
+void named;
+void model;
+void pending;

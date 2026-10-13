@@ -5,13 +5,21 @@ export {
   normalizeConfig,
   normalizeRetry,
 } from "./config.js";
+export { createMongoService } from "./create-mongo-service.js";
 export {
   ConfigurationError,
+  ConnectionError,
   InvalidOptionError,
   isMongoDockError,
+  ModelRegistrationError,
   MongoDockError,
+  ShutdownTimeoutError,
   toSafeDiagnostic,
 } from "./errors.js";
+/** @typedef {import("./types.js").MongoService} MongoService */
+/** @typedef {import("./types.js").ConnectionView} ConnectionView */
+/** @typedef {import("./types.js").ConnectionStatus} ConnectionStatus */
+/** @typedef {import("./types.js").ModelDefinition} ModelDefinition */
 /** @typedef {import("./types.js").MongoServiceConfig} MongoServiceConfig */
 /** @typedef {import("./types.js").NormalizedConfig} NormalizedConfig */
 /** @typedef {import("./types.js").Hooks} Hooks */

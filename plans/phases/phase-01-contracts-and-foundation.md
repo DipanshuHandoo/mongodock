@@ -1,6 +1,7 @@
 # Phase 01: contracts and package foundation
 
-Status: implemented locally; fixture acceptance blocked pending CI evidence.
+Status: completed for authorized local delivery; Docker/cross-platform
+acceptance deferred by the user on 2026-10-13.
 Prerequisites: none.
 Authority: [master plan](../mongodock-implementation-plan.md);
 common rules: [phase index](README.md).
@@ -128,3 +129,25 @@ not reach the backend API pipe. Ubuntu WSL reports Docker integration disabled.
 No Docker settings were changed, shared processes terminated, or commits/pushes
 made to trigger CI. A working Linux Docker runtime or authorized CI execution
 is still required; user input was unavailable when requesting that decision.
+
+## User-directed acceptance update
+
+On 2026-10-13 the user confirmed pushing Phase 01 and stated Docker is not
+required right now, supplying `mongodb://localhost:27017/mongodock` for local
+tests. Remote `dev` matches local Phase 01 commit
+`363dd581766e2926e1895f78ec5b638218da8613`.
+This supersedes the Docker blocker for the current delivery; cross-platform
+fixture readiness remains unverified, not implied by completion.
+
+The supplied deployment passes a read-only ping and reports a writable
+standalone topology. The existing transaction fixture correctly rejects it
+because transaction rollback requires a replica set. That test remains strict;
+no skip, false pass, or shared-server topology change was introduced. Its
+generated test connections were closed and cleanup never targeted `mongodock`.
+Transaction evidence remains the previously passed owned Windows replica sets.
+Use the supplied URI through process environment for compatible future tests;
+do not add it as an implicit integration default.
+
+The visible successful GitHub CI run `38424026664` is for an older `main`
+commit, not Phase 01, and is not evidence for these changes. CI runs on main,
+pull requests, or manual dispatch; pushing dev alone does not trigger it.

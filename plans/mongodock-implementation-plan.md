@@ -2,9 +2,10 @@
 
 ## Status and authority
 
-Phase 01 implementation is in place following user authorization. Its local
-foundation verification passes; cross-platform fixture acceptance remains
-pending Linux/Windows CI evidence. Later phases, publication, commit, and push
+Phase 01 is completed for local delivery following user authorization. Its local
+foundation verification passes; the user deferred Docker/cross-platform
+acceptance on 2026-10-13. Linux fixture readiness remains unverified.
+Later phases, publication, commit, and push
 are not authorized by the Phase 01 request.
 This is the consolidated implementation plan, replacing the former
 mongoose-service-toolkit plan. Its applicable requirements and future-roadmap

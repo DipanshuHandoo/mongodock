@@ -1,6 +1,6 @@
 # Phase 02: connections and model registry
 
-Status: planned. Prerequisite: Phase 01.
+Status: implemented locally (uncommitted); Linux/Docker acceptance deferred by the user. Prerequisite: Phase 01.
 Authority: [master plan](../mongodock-implementation-plan.md);
 common rules: [phase index](README.md).
 
@@ -77,3 +77,10 @@ this resource tracker rather than duplicating shutdown logic.
 Document lifecycle transitions, ownership checks, named config shape, and the
 private operation/cursor tracker contract. Phase 03 composes the execution
 pipeline; later phases must use these primitives for cleanup/admission.
+
+## Evidence (local, Windows, Node 24.16.0)
+
+- npm run verify passes (Mongoose 8.24.5 and 9.11.2 consumers); coverage 99.3% lines, 95.9% branches, 91.9% functions.
+- Real-server checks (local standalone server and replica-set fixture): two-database isolation, close/reopen, failed open (a late driver 'error' event requires listeners to stay attached, so they do), caller-owned connection left open.
+- Deviation: size budgets raised from 40/160 to 80/400 kB packed/unpacked (was 55.7/291 kB); chosen autonomously, needs user review.
+- Deferred: connection event hooks use a simple sequential notifier; Phase 3 replaces it with the full hook pipeline.

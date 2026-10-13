@@ -64,8 +64,8 @@ function provided(value, fallback) {
   return value === undefined ? fallback : value;
 }
 
-/** @param {unknown} value @param {WeakMap<object, unknown>} [seen] @returns {unknown} */
-function snapshot(value, seen = new WeakMap()) {
+/** @param {unknown} value @param {boolean} freeze @param {WeakMap<object, unknown>} seen @returns {unknown} */
+function copyPlain(value, freeze, seen) {
   if (!value || typeof value !== "object") return value;
   const prototype = Object.getPrototypeOf(value);
   // Native handles retain their identity; only caller-owned containers are copied.
@@ -75,14 +75,25 @@ function snapshot(value, seen = new WeakMap()) {
   seen.set(value, copy);
   for (const [key, item] of Object.entries(value)) {
     Object.defineProperty(copy, key, {
-      value: snapshot(item, seen),
+      value: copyPlain(item, freeze, seen),
       enumerable: true,
       configurable: true,
       writable: true,
     });
   }
-  return Object.freeze(copy);
+  return freeze ? Object.freeze(copy) : copy;
 }
+
+/** @param {unknown} value @returns {unknown} */
+const snapshot = (value) => copyPlain(value, true, new WeakMap());
+
+/**
+ * Mutable copy for handing normalized options to a driver that may modify them.
+ * @template T
+ * @param {T} value
+ * @returns {T}
+ */
+export const cloneOptions = (value) => /** @type {T} */ (copyPlain(value, false, new WeakMap()));
 
 /** @param {unknown} value @returns {Readonly<import("./types.js").Hooks>} */
 function hooks(value = {}) {

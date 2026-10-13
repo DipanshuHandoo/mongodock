@@ -10,3 +10,6 @@ if (pkg.isMongoDockError(error)) {
 }
 void config;
 void hooks;
+const service: pkg.MongoService = pkg.createMongoService({ uri: "mongodb://localhost/test" });
+const status: pkg.ConnectionStatus = service.getStatus();
+void status;
