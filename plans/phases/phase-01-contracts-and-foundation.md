@@ -1,6 +1,7 @@
 # Phase 01: contracts and package foundation
 
-Status: planned. Prerequisites: none.
+Status: implemented locally; fixture acceptance blocked pending CI evidence.
+Prerequisites: none.
 Authority: [master plan](../mongodock-implementation-plan.md);
 common rules: [phase index](README.md).
 
@@ -85,3 +86,45 @@ Module paths are ownership guidance; extract helpers only with actual reuse.
 Provide finalized contracts/defaults, actual dependency versions and fixture
 pins/checksums, supported BSON/public API findings, and command results.
 Phase 02 consumes validated config/errors/types and working integration fixtures.
+
+## Implementation evidence
+
+Checked JavaScript replaces the retry boilerplate. Configuration snapshots
+plain nested option containers while preserving opaque native identities.
+Defaults, retry intent, batch-mode validation, safe diagnostics, shared JSDoc
+contracts, and future method contracts are implemented/documented without
+exporting an executable service stub. Normal/minified ESM/CJS builds include
+declarations and maps; original coverage and package-size gates remain intact.
+
+The published async-slot-pool 1.0.1 behavior is covered directly. Its retained
+items/results, stringified errors, swallowed progress-hook failures,
+non-cancelling timeouts, and missing iterator cleanup on bail require the
+bounded-window bridge specified for Phase 06; no bulk engine is added here.
+
+| Command / environment | Result |
+| --- | --- |
+| `npm run verify --silent`, Windows, Node 24.16.0, Mongoose 9.11.2 | Passed: clean, typecheck, lint, format, coverage, real integration, build, both-peer installed tarball checks and examples |
+| Foundation unit/contract coverage in that run | 19 tests; 100% lines, 96.58% branches, 95.65% functions; no skipped tests |
+| Installed tarball consumers, Mongoose 8.24.5 and 9.11.2 | Both passed ESM/CJS/minified runtime imports, public BSON/dependency contracts, NodeNext types, publint, Are the Types Wrong, and examples |
+| `npm exec --yes --package=node@22.18.0 --call "node scripts\test.mjs --coverage"` | Passed at the minimum supported Node runtime |
+| `MONGODOCK_TEST_MONGO_VERSION=7.0` with `npm exec --yes --package=node@22.18.0 --call "node scripts\test-integration.mjs"` | Passed Windows native MongoDB 7.0.26 replica-set ping/primary, database isolation, rollback, and owned cleanup |
+| Default real integration in complete verify | Passed Windows native MongoDB 8.0.17 with Mongoose 9.11.2 |
+| Final package size | 32 files; approximately 26.9 kB packed / 150.9 kB unpacked, within unchanged budgets |
+
+Linux Docker provisioning is implemented with digest pins, loopback publication,
+explicit container ownership, and startup-failure cleanup. It has not been
+executed locally because the Linux Docker daemon is unavailable. The repository's
+workflow configuration covers both platforms, Node 22/24, and both Mongoose
+peers, but that workflow has not been run for these uncommitted changes.
+Cross-platform readiness therefore remains unclaimed, and this phase must not
+be marked fully accepted until CI fixture evidence is available. The MongoDB
+7.0 route has local Windows evidence; CI currently exercises the default 8.0
+route. No commit, push, publication, or later-phase implementation was performed.
+
+Additional local unblock attempts confirmed that neither the `desktop-linux`
+nor `default` Docker context exposes a running daemon. `docker desktop start`
+reported already running, but `docker desktop status` and engine listing could
+not reach the backend API pipe. Ubuntu WSL reports Docker integration disabled.
+No Docker settings were changed, shared processes terminated, or commits/pushes
+made to trigger CI. A working Linux Docker runtime or authorized CI execution
+is still required; user input was unavailable when requesting that decision.

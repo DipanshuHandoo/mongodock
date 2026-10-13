@@ -9,6 +9,7 @@ const steps = [
   "lint",
   "format:check",
   "test:coverage",
+  "test:integration",
   "build",
   "test:package",
 ];

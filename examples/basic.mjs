@@ -1,16 +1,8 @@
 import assert from "node:assert/strict";
-import { withRetry } from "@dipanshuhandoo/mongodock";
+import { normalizeConfig } from "@dipanshuhandoo/mongodock";
 
-let calls = 0;
-const result = await withRetry(
-  async () => {
-    calls++;
-    if (calls < 3) throw new Error("transient");
-    return "done";
-  },
-  { minDelayMs: 1, maxDelayMs: 5 },
-);
-
-assert.equal(result, "done");
-assert.equal(calls, 3);
-console.log(`Succeeded after ${calls} attempts: ${result}`);
+const config = normalizeConfig({ uri: "mongodb://localhost:27017/example" });
+assert.equal(config.retry.enabled, false);
+assert.equal(config.limits.readLimit, 100);
+assert.equal(config.connections.default.options.bufferCommands, false);
+console.log("Configuration normalized; no database connection was opened.");

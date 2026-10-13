@@ -1,5 +1,5 @@
 {
-  "language": "ts",
+  "language": "js",
   "browser": false,
   "globalName": "Mongodock",
   "entries": {

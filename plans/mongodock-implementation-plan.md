@@ -2,7 +2,10 @@
 
 ## Status and authority
 
-Planning only. No implementation, publication, commit, or push is authorized.
+Phase 01 implementation is in place following user authorization. Its local
+foundation verification passes; cross-platform fixture acceptance remains
+pending Linux/Windows CI evidence. Later phases, publication, commit, and push
+are not authorized by the Phase 01 request.
 This is the consolidated implementation plan, replacing the former
 mongoose-service-toolkit plan. Its applicable requirements and future-roadmap
 ideas are retained here; obsolete implementation and validation claims are
@@ -53,15 +56,17 @@ bounded reads, pagination, slot-pooled bulk processing, and explicit seeding.
 
 ## Verified baseline and reference observations
 
-The repository has been initialized while planning:
+The repository was initialized while planning and now contains the Phase 01
+foundation:
 
 - Package metadata now identifies `@dipanshuhandoo/mongodock`, version `0.0.0`,
   MIT, public publication configuration, and Node >=22.18.0.
-- Source and tests still implement the boilerplate's TypeScript `withRetry`
-  sample. Build configuration is still `language: ts`.
+- The TypeScript `withRetry` sample has been replaced by checked JavaScript/
+  JSDoc configuration, errors, and shared contracts. Build language is `js`.
+  No service factory, CRUD engine, or bulk/seed runtime is implemented yet.
 - Existing scripts provide ESM/CommonJS normal/minified builds, maps, declaration
   emission, Biome, Node tests, coverage gates, tarball checks, and Changesets.
-- CI already covers Linux/Windows and Node 22/24. The manual release workflow
+- CI covers Linux/Windows, Node 22/24, and Mongoose 8.24.5/9.11.2. The manual release workflow
   uses environment approval, trusted publishing, and a verified tarball.
 - Retain that infrastructure; adapt it rather than replacing it. Coordinate
   with user-owned changes and reread touched files before implementation.
@@ -79,14 +84,16 @@ keyset pagination, configurable bulk orchestration, and general-purpose seeding.
 Dependency observations:
 
 - Registry metadata reports async-slot-pool 1.0.1, Node >=22, and ESM/CJS exports.
-- Its repository documentation says it accepts arrays/synchronous iterables,
-  retains all task results, stringifies task errors, swallows hook failures, and
-  does not cancel underlying work on timeout.
+- Tests against the published artifact confirm synchronous iterable input,
+  retained task results, stringified task errors, swallowed progress-hook
+  failures, bail without iterator cleanup, and non-cancelling timeouts.
 - Registry metadata reports Mongoose 9.11.2 and latest major-8 version 8.24.5.
   Candidate peer range: `^8.24.5 || ^9.11.2`, subject to successful compatibility
   testing. Do not advertise older patches without testing them.
-- Main-branch documentation may differ from published artifacts: validate the
-  installed dependency's actual API and behavior during implementation.
+- Both Mongoose peers pass installed tarball runtime/declaration checks and
+  expose public BSON size calculation. These are foundation observations, not
+  complete future-feature compatibility claims. Exact evidence and outstanding
+  fixture acceptance are recorded in the Phase 01 handoff.
 
 ## Package architecture
 

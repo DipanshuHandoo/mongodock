@@ -1,7 +1,9 @@
 # Mongodock execution phases
 
-Status: planning only. Creating these files does not authorize implementation,
-commit, push, or publication. All requested features remain first-release scope.
+Status: Phase 01 implemented locally following user authorization; its fixture
+acceptance awaits CI evidence. Phases 02-10 remain planned. Creating these files
+does not authorize later implementation, commit, push, or publication.
+All requested features remain first-release scope.
 
 The [master plan](../mongodock-implementation-plan.md) is the authoritative
 product contract. These phase plans decompose execution, not redefine it.

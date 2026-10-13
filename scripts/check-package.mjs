@@ -187,84 +187,106 @@ async function main() {
       return;
     }
 
-    const consumer = path.join(tmpRoot, "consumer");
-    mkdirSync(consumer);
-    writeFileSync(
-      path.join(consumer, "package.json"),
-      JSON.stringify({ name: "consumer", private: true, type: "module" }),
-    );
-
-    log("Installing tarball into an isolated consumer");
-    await runNpm(["install", "--no-audit", "--no-fund", "--ignore-scripts", tarball], {
-      cwd: consumer,
-    });
-    const installed = path.join(consumer, "node_modules", ...pkg.name.split("/"));
-
-    validateSourceMaps(installed);
-    if (problems.length) throw new Error(`Package contents invalid:\n - ${problems.join("\n - ")}`);
-
-    log("Checking runtime exports (ESM, CommonJS, minified)");
-    const specifiers = Object.keys(pkg.exports)
-      .filter((key) => key !== "./package.json")
-      .map((key) => (key === "." ? pkg.name : `${pkg.name}/${key.slice(2)}`));
-    const minified = Object.keys(config.entries).map((name) => ({
-      esm: path.join(installed, "dist", "esm", `${name}.min.js`),
-      cjs: path.join(installed, "dist", "cjs", `${name}.min.js`),
-    }));
-    writeFileSync(path.join(consumer, "check.mjs"), consumerScript);
-    await runNode(["check.mjs", JSON.stringify({ specifiers, minified })], { cwd: consumer });
-
-    log("Checking TypeScript resolution (ESM and CommonJS consumers)");
-    const fixtures = path.join(root, "test", "types");
-    mkdirSync(path.join(consumer, "ts"));
-    for (const file of readdirSync(fixtures)) {
-      cpSync(path.join(fixtures, file), path.join(consumer, "ts", file));
-    }
-    const fixtureFiles = readdirSync(path.join(consumer, "ts")).map((f) => path.join("ts", f));
-    await runBin(
-      "typescript",
-      "tsc",
-      [
-        "--noEmit",
-        "--strict",
-        "--target",
-        "es2022",
-        "--lib",
-        "es2023,dom",
-        "--module",
-        "nodenext",
-        "--moduleResolution",
-        "nodenext",
-        "--types",
-        "",
-        ...fixtureFiles,
-      ],
-      { cwd: consumer },
-    );
-
-    log("publint");
-    await runBin("publint", "publint", ["run", tarball, "--level", "warning", "--strict"]);
-
-    log("Are the Types Wrong");
-    await runBin("@arethetypeswrong/cli", "attw", [tarball, "--profile", "node16"]);
-
-    const examplesDir = path.join(root, "examples");
-    if (existsSync(examplesDir)) {
-      log("Running examples against the installed tarball");
-      cpSync(examplesDir, path.join(consumer, "examples"), { recursive: true });
-      const runnable = readdirSync(path.join(consumer, "examples")).filter(
-        (f) => f.endsWith(".mjs") && !f.startsWith("_"),
+    for (const peer of ["8.24.5", "9.11.2"]) {
+      const consumer = path.join(tmpRoot, `consumer-${peer}`);
+      mkdirSync(consumer);
+      writeFileSync(
+        path.join(consumer, "package.json"),
+        JSON.stringify({ name: "consumer", private: true, type: "module" }),
       );
-      for (const file of runnable) {
-        console.log(`  examples/${file}`);
-        await runNode([path.join("examples", file)], {
-          cwd: consumer,
-          stdio: ["ignore", "ignore", "inherit"],
-        });
-      }
-    }
 
-    console.log(`\nPackage check passed: ${pathToFileURL(tarball).pathname.split("/").pop()}`);
+      log("Installing tarball into an isolated consumer");
+      await runNpm(
+        [
+          "install",
+          "--no-audit",
+          "--no-fund",
+          "--ignore-scripts",
+          tarball,
+          `mongoose@${peer}`,
+          `@types/node@${pkg.devDependencies["@types/node"]}`,
+        ],
+        {
+          cwd: consumer,
+        },
+      );
+      const installed = path.join(consumer, "node_modules", ...pkg.name.split("/"));
+
+      validateSourceMaps(installed);
+      if (problems.length)
+        throw new Error(`Package contents invalid:\n - ${problems.join("\n - ")}`);
+
+      log("Checking runtime exports (ESM, CommonJS, minified)");
+      const specifiers = Object.keys(pkg.exports)
+        .filter((key) => key !== "./package.json")
+        .map((key) => (key === "." ? pkg.name : `${pkg.name}/${key.slice(2)}`));
+      const minified = Object.keys(config.entries).map((name) => ({
+        esm: path.join(installed, "dist", "esm", `${name}.min.js`),
+        cjs: path.join(installed, "dist", "cjs", `${name}.min.js`),
+      }));
+      writeFileSync(path.join(consumer, "check.mjs"), consumerScript);
+      await runNode(["check.mjs", JSON.stringify({ specifiers, minified })], { cwd: consumer });
+
+      cpSync(
+        path.join(root, "test", "dependencies.test.js"),
+        path.join(consumer, "dependencies.test.js"),
+      );
+      await runNode(["--test", "dependencies.test.js"], { cwd: consumer });
+
+      log("Checking TypeScript resolution (ESM and CommonJS consumers)");
+      const fixtures = path.join(root, "test", "types");
+      mkdirSync(path.join(consumer, "ts"));
+      for (const file of readdirSync(fixtures)) {
+        cpSync(path.join(fixtures, file), path.join(consumer, "ts", file));
+      }
+      const fixtureFiles = readdirSync(path.join(consumer, "ts")).map((f) => path.join("ts", f));
+      await runBin(
+        "typescript",
+        "tsc",
+        [
+          "--noEmit",
+          "--strict",
+          "--target",
+          "es2022",
+          "--lib",
+          "es2023,dom,esnext.disposable",
+          "--module",
+          "nodenext",
+          "--moduleResolution",
+          "nodenext",
+          "--types",
+          "node",
+          ...fixtureFiles,
+        ],
+        { cwd: consumer },
+      );
+
+      log("publint");
+      await runBin("publint", "publint", ["run", tarball, "--level", "warning", "--strict"]);
+
+      log("Are the Types Wrong");
+      await runBin("@arethetypeswrong/cli", "attw", [tarball, "--profile", "node16"]);
+
+      const examplesDir = path.join(root, "examples");
+      if (existsSync(examplesDir)) {
+        log("Running examples against the installed tarball");
+        cpSync(examplesDir, path.join(consumer, "examples"), { recursive: true });
+        const runnable = readdirSync(path.join(consumer, "examples")).filter(
+          (f) => f.endsWith(".mjs") && !f.startsWith("_"),
+        );
+        for (const file of runnable) {
+          console.log(`  examples/${file}`);
+          await runNode([path.join("examples", file)], {
+            cwd: consumer,
+            stdio: ["ignore", "ignore", "inherit"],
+          });
+        }
+      }
+
+      console.log(
+        `\nPackage check passed with Mongoose ${peer}: ${pathToFileURL(tarball).pathname.split("/").pop()}`,
+      );
+    }
   } finally {
     const resolved = path.resolve(tmpRoot);
     if (

@@ -25,6 +25,7 @@ const common = {
   entryPoints,
   bundle: true,
   sourcemap: true,
+  sourcesContent: false,
   legalComments: "none",
   logLevel: "warning",
 };
@@ -83,12 +84,20 @@ async function main() {
   await runBin("typescript", "tsc", ["-p", "tsconfig.build.json"]);
 
   // CommonJS consumers need declarations that resolve under the commonjs package marker.
-  for (const file of readdirSync(path.join(dist, "esm")).filter((f) => f.endsWith(".d.ts"))) {
-    mkdirSync(path.join(dist, "cjs"), { recursive: true });
-    cpSync(path.join(dist, "esm", file), path.join(dist, "cjs", file));
-  }
+  copyDeclarations(path.join(dist, "esm"), path.join(dist, "cjs"));
 
   console.log(`Build complete: dist/esm, dist/cjs${config.browser ? ", dist/browser" : ""}`);
+}
+
+function copyDeclarations(source, destination) {
+  for (const entry of readdirSync(source, { withFileTypes: true })) {
+    if (entry.isDirectory()) {
+      copyDeclarations(path.join(source, entry.name), path.join(destination, entry.name));
+    } else if (entry.name.endsWith(".d.ts")) {
+      mkdirSync(destination, { recursive: true });
+      cpSync(path.join(source, entry.name), path.join(destination, entry.name));
+    }
+  }
 }
 
 main().catch((error) => fail(error));

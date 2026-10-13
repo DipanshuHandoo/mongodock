@@ -6,7 +6,7 @@
     "emitDeclarationOnly": true,
     "allowImportingTsExtensions": false,
     "rewriteRelativeImportExtensions": true,
-    "checkJs": false,
+    "checkJs": true,
     "declarationMap": false,
     "rootDir": "src",
     "outDir": "dist/esm"

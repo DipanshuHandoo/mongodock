@@ -1,8 +1,14 @@
 {
   "name": "@dipanshuhandoo/mongodock",
   "version": "0.0.0",
-  "description": "Describe your package",
-  "keywords": [],
+  "description": "Connection-aware Mongoose service toolkit with bounded processing and explicit lifecycle contracts.",
+  "keywords": [
+    "mongoose",
+    "mongodb",
+    "database",
+    "bulk",
+    "streaming"
+  ],
   "license": "MIT",
   "author": "Dipanshu Handoo",
   "repository": {
@@ -50,6 +56,7 @@
     "build": "node scripts/build.mjs",
     "test": "node scripts/test.mjs",
     "test:coverage": "node scripts/test.mjs --coverage",
+    "test:integration": "node scripts/test-integration.mjs",
     "lint": "node scripts/run.mjs --bin @biomejs/biome biome lint --error-on-warnings .",
     "format": "node scripts/run.mjs --bin @biomejs/biome biome format --write .",
     "format:check": "node scripts/run.mjs --bin @biomejs/biome biome format .",
@@ -63,6 +70,12 @@
     "version": "changeset version && npm install --package-lock-only --ignore-scripts",
     "prepublishOnly": "node scripts/release.mjs --prepublish-guard"
   },
+  "dependencies": {
+    "@dipanshuhandoo/async-slot-pool": "^1.0.1"
+  },
+  "peerDependencies": {
+    "mongoose": "^8.24.5 || ^9.11.2"
+  },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",
     "@biomejs/biome": "^2.5.15",
@@ -70,6 +83,7 @@
     "@types/node": "^22.20.5",
     "esbuild": "^0.28.2",
     "publint": "^0.3.25",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "mongoose": "9.11.2"
   }
 }

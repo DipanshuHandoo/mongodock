@@ -1,30 +1,23 @@
 # Getting started
 
-## Requirements
+The package is under development. Phase 1 exposes configuration normalization
+and errors, not a database service. Registry publication is not implied.
 
-Node.js >= 22.18.0. The package ships ESM and CommonJS builds with TypeScript declarations.
-
-## Install
-
-```sh
-npm install @dipanshuhandoo/mongodock
-```
-
-## First call
+From a checkout, install dependencies with `npm ci`, then build with
+`npm run build`. `npm run test:package` installs a real tarball into an isolated
+consumer and exercises ESM, CommonJS, TypeScript, and offline examples.
 
 ```js
-import { withRetry } from "@dipanshuhandoo/mongodock";
+import { normalizeConfig } from "@dipanshuhandoo/mongodock";
 
-const result = await withRetry(async (attempt) => callService(attempt));
+const config = normalizeConfig({
+  connections: {
+    primary: { uri: "mongodb://localhost:27017/primary" },
+    reporting: { uri: "mongodb://localhost:27017/reporting" },
+  },
+  defaultConnection: "primary",
+});
 ```
 
-```js
-// CommonJS
-const { withRetry } = require("@dipanshuhandoo/mongodock");
-```
-
-## Next steps
-
-- [Retry guide](retry.md) for backoff, cancellation and hooks
-- [Configuration](configuration.md) for every option and default
-- [Errors and messages](errors-and-messages.md)
+No network operation occurs. Factory/model lifecycle arrives in Phase 2; see
+[Configuration](configuration.md) and [Testing](testing.md) for today's APIs.

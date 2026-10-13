@@ -1,67 +1,65 @@
 # @dipanshuhandoo/mongodock
 
-> TODO: one-sentence description of what this package does.
-
-[![CI](https://github.com/DipanshuHandoo/mongodock/actions/workflows/ci.yml/badge.svg)](https://github.com/DipanshuHandoo/mongodock/actions/workflows/ci.yml)
-[![npm](https://img.shields.io/npm/v/@dipanshuhandoo/mongodock)](https://www.npmjs.com/package/@dipanshuhandoo/mongodock)
+Node.js Mongoose service toolkit, currently at **Phase 1: configuration and
+package foundation**. Database service operations are not implemented yet.
+This checkout is not a production-ready release.
 
 ## Requirements
 
-Node.js >= 22.18.0.
+Node.js >=22.18.0. Mongoose is an external peer; candidate support is
+`^8.24.5 || ^9.11.2`. Published slot scheduling dependency:
+`@dipanshuhandoo/async-slot-pool` 1.0.1. Compatibility evidence and fixture pins
+are recorded in [Foundation](docs/foundation.md).
 
-## Install
-
-```sh
-npm install @dipanshuhandoo/mongodock
-```
-
-## Quick start
+## Current public API
 
 ```js
-import { withRetry } from "@dipanshuhandoo/mongodock";
+import { normalizeConfig } from "@dipanshuhandoo/mongodock";
 
-const data = await withRetry(() => fetchSomething(), { retries: 3 });
+const config = normalizeConfig({
+  uri: "mongodb://localhost:27017/example",
+  limits: { concurrency: 2, batchSize: 500 },
+});
 ```
 
 CommonJS:
 
 ```js
-const { withRetry } = require("@dipanshuhandoo/mongodock");
+const { normalizeConfig } = require("@dipanshuhandoo/mongodock");
 ```
 
-## Advanced usage
+Normalization validates configuration without opening a database connection.
+It preserves explicit ownership, disables hidden command buffering, snapshots
+hook/plugin registrations, and rejects unknown wrapper options. Do not log the
+normalized object: it retains connection URIs.
 
-```js
-import { withRetry, RetryExhaustedError } from "@dipanshuhandoo/mongodock";
+## Development
 
-const controller = new AbortController();
-try {
-  await withRetry((attempt) => callApi(attempt), {
-    retries: 5,
-    minDelayMs: 200,
-    maxDelayMs: 10_000,
-    signal: controller.signal,
-    shouldRetry: (error) => error.status >= 500,
-    onRetry: ({ attempt, delayMs, error }) => console.warn("retrying", { attempt, delayMs, error }),
-  });
-} catch (error) {
-  if (error instanceof RetryExhaustedError) console.error(error.attempts, error.cause);
-}
+```sh
+npm ci
+npm run verify
 ```
 
-## Documentation
+`verify` requires an isolated real MongoDB replica set. Windows automatically
+downloads checksum-verified native binaries; Linux requires Docker. The fixture
+runner owns and removes its database/process resources. See
+[Testing](docs/testing.md) for explicit external-fixture opt-in.
+
+## Guides
 
 - [Getting started](docs/getting-started.md)
 - [Configuration](docs/configuration.md)
-- [Retry guide](docs/retry.md)
 - [API reference](docs/api-reference.md)
-- [Errors and messages](docs/errors-and-messages.md)
+- [Errors and diagnostics](docs/errors-and-messages.md)
+- [Foundation and dependency contracts](docs/foundation.md)
+- [Testing and fixtures](docs/testing.md)
 - [Troubleshooting](docs/troubleshooting.md)
 
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md). Maintainers: see [MAINTAINING.md](MAINTAINING.md).
+The repository [phase plans](plans/phases/README.md) describe future capabilities,
+not implemented APIs. No factory, CRUD, stream, transaction, bulk, or seed runtime
+is exported in Phase 1.
 
 ## License
 
-MIT
+MIT. See [LICENSE](LICENSE). Contribution/release policy remains in
+[CONTRIBUTING.md](CONTRIBUTING.md) and [MAINTAINING.md](MAINTAINING.md).

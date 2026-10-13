@@ -1,18 +1,64 @@
 # Configuration
 
-`withRetry(fn, options)` accepts these options. All are optional.
+Normalization copies and freezes plain objects and arrays, including nested
+connection options. Opaque native handles and driver instances keep their
+identity and are not frozen.
 
-| Option | Type | Default | Description |
-| --- | --- | --- | --- |
-| `retries` | `number` | `3` | Retries after the first attempt. Non-negative integer. `0` disables retrying. |
-| `minDelayMs` | `number` | `100` | Delay before the first retry. Non-negative integer. |
-| `maxDelayMs` | `number` | `5000` | Upper bound for any single delay. Non-negative integer. |
-| `factor` | `number` | `2` | Exponential growth factor. Must be `>= 1`. |
-| `jitter` | `boolean` | `true` | Full jitter: each delay is a random value in `[0, computed]`. |
-| `signal` | `AbortSignal` | none | Cancels waiting and prevents further attempts. |
-| `shouldRetry` | `(error, attempt) => boolean` | retry all | Return `false` to rethrow the original error immediately. |
-| `onRetry` | `(info) => void` | none | Logging hook called before each wait. Errors thrown by the hook are ignored. |
+`normalizeConfig(config)` accepts either `uri` plus native Mongoose `options`,
+or `connections` with named `{ uri, options }` definitions. Named configs need
+`defaultConnection` unless a connection is called `default`.
+`requiredConnections` defaults to every configured name.
 
-Invalid values throw [`InvalidOptionError`](errors-and-messages.md) before `fn` is called.
+A caller-owned Mongoose Connection can be passed as `{ connection }` within
+named configuration. It must explicitly disable `bufferCommands`; it cannot
+also specify URI/options and will not be closed by default. Normalization
+checks public capability shapes; actual lifecycle ownership is Phase 2 work.
 
-There is no global state: options are per call, and calls never influence each other.
+Wrapper options are allowlisted. Native Mongoose options pass through; owned
+connections always set `bufferCommands: false`. Errors avoid echoing URI values.
+URIs/options/native handles are sensitive and should not be logged.
+
+## Limits
+
+| Key | Default | Boundary |
+| --- | --- | --- |
+| readLimit / maxReadLimit / pageLimit | 100 / 1,000 / 20 | Positive safe integers; defaults <= maximum |
+| batchSize | 500 | 1..10,000 |
+| concurrency | 2 | 1..32 |
+| maxBatchBytes | 8 MiB | Positive safe integer |
+| diagnosticSamples | 100 | 0..1,000 |
+| maxDiagnosticBytes | 64 KiB | Positive safe integer |
+| hookTimeoutMS / drainTimeoutMS / probeTimeoutMS | 5,000 / 30,000 / 5,000 | Positive safe integers |
+
+These are validated foundation contracts; their database behavior is implemented
+in subsequent phases. Zero, NaN, infinity, fractions, strings, and unsafe integers
+are rejected where outside the listed range.
+
+## Hooks and plugins
+
+`hooks` accepts functions with the names in exported `HOOK_NAMES`.
+`plugins` is an array of unique `{ name, hooks }` registrations. Names are
+1..64 ASCII letters/digits/underscores/hyphens, starting with a letter.
+Registrations are copied/frozen; hook execution is Phase 3 work.
+
+## Retry
+
+`normalizeRetry(setting?, hasBeforeRetry?)` normalizes one effective setting.
+No retry execution happens in Phase 1. Defaults: disabled; when enabled, 2 retries,
+100 ms base delay, 1,000 ms maximum delay, 10,000 ms admission budget.
+`retry: true` or an object enables the profile. With absent retry settings,
+`beforeRetry` in service/plugin hooks enables it. `false` or `maxRetries: 0`
+disables it. Maximum configured retries: 10; base delay cannot exceed maximum.
+
+Per-call inheritance and eligible read/error classification are Phase 3
+executor responsibilities. Normalization alone never retries a database call.
+`retrySource` records inferred/configured/disabled intent so future inheritance
+can distinguish default-off from an explicit service disable.
+
+## Batch controls
+
+`normalizeBatchOptions(options?)` preserves native mode unless batching=true.
+Native mode rejects batchSize/concurrency/maxBatchBytes/failureMode controls.
+Batched defaults are 500 records, 2 slots, 8 MiB, unordered, continue.
+Ordered batched input requires concurrency=1 and failureMode=stop explicitly.
+This validator does not consume operations or execute a bulk write.

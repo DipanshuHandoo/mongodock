@@ -19,6 +19,6 @@
     "skipLibCheck": true,
     "noEmit": true
   },
-  "include": ["src", "test/*.ts", "test/*.js"],
+  "include": ["src", "test/**/*.js"],
   "exclude": ["dist", "node_modules"]
 }

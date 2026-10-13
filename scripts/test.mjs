@@ -1,4 +1,6 @@
-import { runNode, readConfig, sourceExtension, fail } from "./lib/util.mjs";
+import { readdirSync } from "node:fs";
+import path from "node:path";
+import { runNode, readConfig, sourceExtension, fail, root } from "./lib/util.mjs";
 
 const coverage = process.argv.includes("--coverage");
 const config = readConfig();
@@ -14,6 +16,15 @@ if (coverage) {
     `--test-coverage-functions=${config.coverage.functions}`,
   );
 }
-args.push(`test/**/*.test.${ext}`);
+function tests(directory) {
+  return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+    const file = path.join(directory, entry.name);
+    if (entry.isDirectory()) {
+      return entry.name === "integration" ? [] : tests(file);
+    }
+    return entry.name.endsWith(`.test.${ext}`) || entry.name.endsWith(".test.mjs") ? [file] : [];
+  });
+}
+args.push(...tests(path.join(root, "test")));
 
 runNode(args).catch((error) => fail(error));
