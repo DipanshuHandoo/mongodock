@@ -1,6 +1,6 @@
 # Phase 06: slot-pooled bulk processing
 
-Status: planned. Prerequisite: Phase 04.
+Status: implemented locally (verify passes). Prerequisite: Phase 04.
 Authority: [master plan](../mongodock-implementation-plan.md);
 common rules: [phase index](README.md).
 

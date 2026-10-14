@@ -3,6 +3,7 @@ import { paginateCursorSpec } from "../pagination/cursor.js";
 import { paginateSpec } from "../pagination/offset.js";
 import { streamSpecs } from "../streaming/iterate.js";
 import { aggregateSpecs } from "./aggregate.js";
+import { bulkWriteSpec } from "../bulk/bulk-write.js";
 import { isPlain } from "./guards.js";
 import { readSpecs } from "./reads.js";
 import { writeSpecs } from "./writes.js";
@@ -12,6 +13,7 @@ const SPECS = Object.freeze([
   paginateSpec,
   paginateCursorSpec,
   ...writeSpecs,
+  bulkWriteSpec,
   ...aggregateSpecs,
   ...streamSpecs,
 ]);
@@ -78,7 +80,8 @@ export function createOperations({ executor, config, connection, resolveModel })
       return executor.execute({
         ...common,
         restoreResult: spec.restore,
-        run: (/** @type {any} */ final) => run(model, final, env),
+        ...(spec.classify ? { classify: spec.classify } : {}),
+        run: (/** @type {any} */ final, /** @type {any} */ ctx) => run(model, final, env, ctx),
       });
     };
     // Materialized methods always reject rather than throw; streams validate synchronously.

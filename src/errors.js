@@ -114,6 +114,19 @@ export class HookError extends MongoDockError {
   }
 }
 
+export class BulkError extends MongoDockError {
+  /**
+   * Fatal batched-write failure (source, sink, or safety violation). `report` is the bounded
+   * partial progress at the time dispatch stopped.
+   * @param {string} message
+   * @param {ErrorOptions & ErrorContext & { report?: import("./types.js").BulkReport }} [options]
+   */
+  constructor(message, options = {}) {
+    super("ERR_BULK", message, options);
+    this.report = options.report;
+  }
+}
+
 /** @param {unknown} value @returns {value is MongoDockError} */
 export function isMongoDockError(value) {
   return value instanceof MongoDockError;

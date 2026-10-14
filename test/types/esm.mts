@@ -158,3 +158,26 @@ async function pagingTypes() {
   void next;
 }
 void pagingTypes;
+
+async function bulkTypes() {
+  const native = await ops.bulkWrite({
+    model: Widgets,
+    operations: [{ insertOne: { document: { sku: "a", qty: 1 } } }],
+  });
+  const inserted: number = native.insertedCount;
+  const report = await ops.bulkWrite({
+    model: Widgets,
+    batching: true,
+    operations: [{ insertOne: { document: { sku: "a", qty: 1 } } }],
+    onBatch: (outcome) => {
+      const status: string = outcome.status;
+      void status;
+    },
+  });
+  const consumed: number = report.consumed;
+  const batches: number = report.batches.total;
+  void inserted;
+  void consumed;
+  void batches;
+}
+void bulkTypes;

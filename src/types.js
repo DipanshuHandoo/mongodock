@@ -164,6 +164,7 @@
  * @property {OneMethod} findByIdAndUpdate
  * @property {OneMethod} findOneAndDelete
  * @property {OneMethod} findByIdAndDelete
+ * @property {BulkWriteMethod} bulkWrite
  * @property {(input: AggregateInput & CallOptions) => Promise<any[]>} aggregate
  *
  * @typedef {object} ConnectionViewBase
@@ -248,9 +249,11 @@
  *
  * @typedef {object} BulkReport
  * @property {"completed" | "partial" | "failed" | "cancelled"} status
+ * @property {"batched"} mode
+ * @property {boolean} ordered
  * @property {number} consumed
  * @property {number} attempted
- * @property {number | null} knownSucceeded
+ * @property {number} knownSucceeded
  * @property {number} failed
  * @property {number} uncertain
  * @property {number | null} unattempted
@@ -259,7 +262,16 @@
  * @property {number} modifiedCount
  * @property {number} deletedCount
  * @property {number} upsertedCount
+ * @property {{ total: number, succeeded: number, partial: number, failed: number, uncertain: number, unattempted: number }} batches
+ * @property {{ samples: readonly { batchIndex: number, index: number | null, kind: string, code?: number | string | undefined }[], omitted: number }} diagnostics Index and error-code metadata only; no messages, keys or documents.
  * @property {number} elapsedMs
+ *
+ * @typedef {import("./bulk/outcomes.js").BatchOutcome} BulkBatchOutcome
+ *
+ * @typedef {{
+ *   (input: import("./contracts.js").NativeBulkInput<any> & CallOptions): Promise<import("mongodb").BulkWriteResult>,
+ *   (input: import("./contracts.js").BatchedBulkInput<any> & CallOptions): Promise<BulkReport>,
+ * }} BulkWriteMethod
  *
  */
 /**

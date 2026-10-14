@@ -7,6 +7,7 @@ export {
 } from "./config.js";
 export { createMongoService } from "./create-mongo-service.js";
 export {
+  BulkError,
   ConfigurationError,
   ConnectionError,
   HookError,
@@ -30,6 +31,7 @@ export {
 /** @typedef {import("./types.js").RetryOptions} RetryOptions */
 /** @typedef {import("./types.js").OperationContext} OperationContext */
 /** @typedef {import("./types.js").BulkReport} BulkReport */
+/** @typedef {import("./types.js").BulkBatchOutcome} BulkBatchOutcome */
 /** @typedef {import("./types.js").BatchOptions} BatchOptions */
 /** @typedef {import("./types.js").SeedOptions} SeedOptions */
 /** @template T @typedef {import("./contracts.js").FindInput<T>} FindInput */

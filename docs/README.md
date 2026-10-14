@@ -18,3 +18,4 @@ only, not implemented methods.
 - [Troubleshooting](troubleshooting.md)
 - [Queries and writes](queries.md)
 - [Pagination and streaming](pagination.md)
+- [Bulk processing](bulk-processing.md)
