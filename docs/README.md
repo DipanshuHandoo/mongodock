@@ -19,3 +19,5 @@ only, not implemented methods.
 - [Queries and writes](queries.md)
 - [Pagination and streaming](pagination.md)
 - [Bulk processing](bulk-processing.md)
+- [Transactions](transactions.md)
+- [Health](health.md)

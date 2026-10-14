@@ -181,3 +181,21 @@ async function bulkTypes() {
   void batches;
 }
 void bulkTypes;
+
+async function transactionTypes() {
+  const total = await ops.withTransaction(async (tx) => {
+    const session: import("mongodb").ClientSession = tx.session;
+    const created = await tx.ops.create({ model: Widgets, data: { sku: "t", qty: 1 } });
+    void session;
+    return created.qty + tx.attempt;
+  });
+  const sum: number = total;
+  const health = await ops.healthCheck({ probe: false, timeoutMS: 1000 });
+  const ready: boolean = health.ready;
+  const one = await ops.use("default").healthCheck();
+  const latency: number | undefined = one.latencyMs;
+  void sum;
+  void ready;
+  void latency;
+}
+void transactionTypes;

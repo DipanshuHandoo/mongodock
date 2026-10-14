@@ -180,11 +180,53 @@
  * @property {(name: string) => boolean} hasModel
  * @property {() => readonly string[]} listModels
  * @property {(name: string) => boolean} unregisterModel
+ * @property {<T>(callback: (tx: TransactionContext) => T | Promise<T>, options?: TransactionOptions) => Promise<Awaited<T>>} withTransaction
+ * @property {(options?: HealthOptions) => Promise<ConnectionHealth>} healthCheck
+ *
+ * @typedef {object} TransactionContext
+ * @property {import("mongodb").ClientSession} session Explicit session of this attempt; prefer `ops`.
+ * @property {OperationMethods} ops Operations pinned to `session`; sequential, valid for this attempt only.
+ * @property {number} attempt 1-based; greater than 1 when the driver replays the callback.
+ * @property {string} transactionId
+ * @property {AbortSignal} signal
+ *
+ * @typedef {object} TransactionOptions
+ * @property {import("mongodb").TransactionOptions} [transactionOptions]
+ * @property {AbortSignal} [signal]
+ * @property {string} [correlationId]
+ * @property {Hooks} [hooks]
+ * @property {Record<string, unknown>} [metadata]
+ *
+ * @typedef {object} HealthOptions
+ * @property {boolean} [probe] Default true; false reports current state without any network call.
+ * @property {number} [timeoutMS] Probe budget; defaults to `limits.probeTimeoutMS`.
+ * @property {AbortSignal} [signal]
+ * @property {string} [correlationId]
+ * @property {Hooks} [hooks]
+ * @property {Record<string, unknown>} [metadata]
+ *
+ * @typedef {object} ConnectionHealth
+ * @property {string} name
+ * @property {boolean} ready
+ * @property {ConnectionStatus["state"]} state
+ * @property {boolean} probed False for status-only reports.
+ * @property {string} checkedAt ISO timestamp.
+ * @property {number} [latencyMs]
+ * @property {boolean} [deadlineExpired]
+ * @property {boolean} [nativeOperationActive] The driver ping could not be cancelled and may still be running.
+ * @property {{ code: string, databaseOutcome?: string }} [error]
+ *
+ * @typedef {object} ServiceHealth
+ * @property {boolean} ready True when every required connection is ready.
+ * @property {string} checkedAt
+ * @property {readonly string[]} required
+ * @property {Readonly<Record<string, ConnectionHealth>>} connections
  *
  * @typedef {ConnectionViewBase & OperationMethods} ConnectionView
  *
  * @typedef {object} MongoServiceExtras
  * @property {string} defaultConnection
+ * @property {(options?: HealthOptions) => Promise<ServiceHealth>} healthCheck
  * @property {(name?: string) => Promise<ConnectionStatus>} connect
  * @property {(name?: string) => Promise<ConnectionStatus>} disconnect
  * @property {() => Promise<readonly ConnectionStatus[]>} connectAll
@@ -196,7 +238,7 @@
  * @property {() => readonly string[]} listConnections
  * @property {(name: string) => ConnectionView} use
  *
- * @typedef {Omit<ConnectionView, "connect" | "disconnect" | "getConnection" | "isConnected" | "getStatus"> & MongoServiceExtras} MongoService
+ * @typedef {Omit<ConnectionView, "connect" | "disconnect" | "getConnection" | "isConnected" | "getStatus" | "healthCheck"> & MongoServiceExtras} MongoService
  *
  * @typedef {object} Limits
  * @property {number} [readLimit]

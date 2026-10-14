@@ -20,6 +20,13 @@ const SPECS = Object.freeze([
 export const OPERATION_METHODS = Object.freeze(SPECS.map((spec) => spec.method));
 
 /**
+ * @typedef {object} OperationScope
+ * @property {unknown} session The transaction session every call in this scope uses.
+ * @property {() => () => void} begin Admits one call (rejects when closed, cancelled or busy).
+ * @property {(params: Record<string, any>) => Record<string, any>} decorate
+ */
+
+/**
  * Builds the public operation methods for one connection. Each call resolves its model once,
  * validates the caller input, and runs through the shared executor; hook-transformed input is
  * re-validated and cannot elevate permissions or change the session.
@@ -28,20 +35,31 @@ export const OPERATION_METHODS = Object.freeze(SPECS.map((spec) => spec.method))
  * @param {import("../types.js").NormalizedConfig} deps.config
  * @param {string} deps.connection
  * @param {(model: unknown) => import("mongoose").Model<any>} deps.resolveModel
+ * @param {(session: unknown) => void} [deps.verifySession] Rejects sessions this connection must not use.
+ * @param {OperationScope} [deps.scope] Pins every call to one transaction session.
  */
-export function createOperations({ executor, config, connection, resolveModel }) {
+export function createOperations({
+  executor,
+  config,
+  connection,
+  resolveModel,
+  verifySession,
+  scope,
+}) {
   const context = { limits: config.limits };
   const env = Object.freeze({ connection, limits: config.limits });
   /** @type {Record<string, (params: any) => any>} */
   const methods = {};
   for (const spec of SPECS) {
-    const invoke = (/** @type {any} */ params) => {
-      if (!isPlain(params))
+    const invoke = (/** @type {any} */ given) => {
+      if (!isPlain(given))
         throw new InvalidOptionError(`${spec.method} input must be a plain object`);
+      const params = scope ? scope.decorate(given) : given;
       const { model: reference, signal, correlationId, hooks, retry, metadata, ...body } = params;
       const model = resolveModel(reference);
       const input = spec.normalize(body, context);
       const session = input.options?.session;
+      if (session !== undefined && !scope) verifySession?.(session);
       const common = {
         method: spec.method,
         connection,
@@ -85,7 +103,31 @@ export function createOperations({ executor, config, connection, resolveModel })
       });
     };
     // Materialized methods always reject rather than throw; streams validate synchronously.
-    methods[spec.method] = spec.stream ? invoke : async (params) => invoke(params);
+    if (!scope) {
+      methods[spec.method] = spec.stream ? invoke : async (params) => invoke(params);
+    } else if (spec.stream) {
+      methods[spec.method] = (params) =>
+        guardedStream(scope, /** @type {AsyncGenerator<unknown, void, void>} */ (invoke(params)));
+    } else {
+      methods[spec.method] = async (params) => {
+        const release = scope.begin();
+        try {
+          return await invoke(params);
+        } finally {
+          release();
+        }
+      };
+    }
   }
   return Object.freeze(methods);
+}
+
+/** @param {OperationScope} scope @param {AsyncGenerator<unknown, void, void>} inner */
+async function* guardedStream(scope, inner) {
+  const release = scope.begin();
+  try {
+    yield* inner;
+  } finally {
+    release();
+  }
 }

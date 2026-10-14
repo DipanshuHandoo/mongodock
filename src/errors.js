@@ -127,6 +127,19 @@ export class BulkError extends MongoDockError {
   }
 }
 
+export class TransactionError extends MongoDockError {
+  /**
+   * Transaction lifecycle failure (scope misuse, unsupported topology, commit/abort/cleanup).
+   * `errors` carries secondary failures that would otherwise be hidden by the primary one.
+   * @param {string} message
+   * @param {ErrorOptions & ErrorContext & { errors?: readonly unknown[] }} [options]
+   */
+  constructor(message, options = {}) {
+    super("ERR_TRANSACTION", message, options);
+    this.errors = Object.freeze([...(options.errors ?? [])]);
+  }
+}
+
 /** @param {unknown} value @returns {value is MongoDockError} */
 export function isMongoDockError(value) {
   return value instanceof MongoDockError;

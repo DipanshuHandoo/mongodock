@@ -4,6 +4,8 @@ import { ConnectionError, InvalidOptionError } from "./errors.js";
 import { createModelRegistry } from "./models/registry.js";
 import { createOperations } from "./operations/index.js";
 import { createExecutor } from "./hooks/pipeline.js";
+import { createHealth } from "./health.js";
+import { createSessionVerifier, createWithTransaction } from "./transactions.js";
 
 /** @type {WeakMap<object, { executor: ReturnType<typeof createExecutor>, config: import("./types.js").NormalizedConfig }>} */
 const internals = new WeakMap();
@@ -41,6 +43,7 @@ export function createMongoService(input = {}, internal = {}) {
   });
   /** @type {Map<string, ReturnType<typeof createModelRegistry>>} */
   const registries = new Map();
+  const health = createHealth({ executor, manager, config });
   /** @param {string | undefined} name */
   const registry = (name) => {
     const key = name ?? config.defaultConnection;
@@ -54,19 +57,30 @@ export function createMongoService(input = {}, internal = {}) {
   };
 
   /** @param {string} name */
-  const createView = (name) =>
-    Object.freeze({
+  const createView = (name) => {
+    const verifySession = createSessionVerifier(() => manager.getConnection(name));
+    const resolve = (/** @type {unknown} */ reference) => resolveModel(name, reference);
+    return Object.freeze({
       .../** @type {import("./types.js").OperationMethods} */ (
         /** @type {unknown} */ (
           createOperations({
             executor,
             config,
             connection: name,
-            resolveModel: (reference) => resolveModel(name, reference),
+            resolveModel: resolve,
+            verifySession,
           })
         )
       ),
       name,
+      withTransaction: createWithTransaction({
+        executor,
+        config,
+        name,
+        getConnection: () => manager.getConnection(name),
+        resolveModel: resolve,
+      }),
+      healthCheck: (/** @type {unknown} */ options) => health.checkConnection(name, options),
       connect: () => manager.connect(name),
       disconnect: () => manager.disconnect(name),
       getConnection: () => manager.getConnection(name),
@@ -80,6 +94,7 @@ export function createMongoService(input = {}, internal = {}) {
       listModels: () => registry(name).listModels(),
       unregisterModel: (/** @type {string} */ model) => registry(name).unregisterModel(model),
     });
+  };
 
   /** @param {string} name @param {unknown} reference */
   function resolveModel(name, reference) {
@@ -114,6 +129,7 @@ export function createMongoService(input = {}, internal = {}) {
   const service = Object.freeze({
     ...defaultView(),
     defaultConnection: config.defaultConnection,
+    healthCheck: (/** @type {unknown} */ options) => health.checkAll(options),
     connect: (/** @type {string} */ name = config.defaultConnection) => manager.connect(name),
     disconnect: (/** @type {string} */ name = config.defaultConnection) => manager.disconnect(name),
     connectAll: () => manager.connectAll(),
