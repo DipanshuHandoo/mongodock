@@ -16,3 +16,4 @@ only, not implemented methods.
 - [Foundation](foundation.md)
 - [Testing](testing.md)
 - [Troubleshooting](troubleshooting.md)
+- [Queries and writes](queries.md)

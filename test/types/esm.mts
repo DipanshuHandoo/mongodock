@@ -104,3 +104,28 @@ void scope;
 void badHooks;
 void OperationVetoError;
 void OperationAbortedError;
+
+import type mongoose from "mongoose";
+import { createMongoService as createOpsService } from "@dipanshuhandoo/mongodock";
+
+interface Widget {
+  sku: string;
+  qty: number;
+}
+declare const Widgets: mongoose.Model<Widget>;
+const ops = createOpsService({ uri: "mongodb://localhost/test" });
+async function operationTypes() {
+  const hydrated = await ops.findOne({ model: Widgets, filter: { sku: "a" } });
+  const hydratedSku: string | undefined = hydrated?.sku;
+  const lean = await ops.find({ model: Widgets, lean: true });
+  const leanQty: number | undefined = lean[0]?.qty;
+  const count: number = await ops.countDocuments({ model: "Widget" });
+  const present: boolean = await ops.exists({ model: "Widget" });
+  // @ts-expect-error model is required.
+  await ops.find({ filter: {} });
+  void hydratedSku;
+  void leanQty;
+  void count;
+  void present;
+}
+void operationTypes;

@@ -242,6 +242,10 @@ export function createExecutor({ config, admit, random = Math.random }) {
           }
           current = cloneOptions(next);
         }
+        // Final authority over the hook-transformed input: revalidation and safety guards.
+        if (typeof options.finalizeInput === "function") {
+          current = cloneOptions(await options.finalizeInput(current));
+        }
         if (controller.signal.aborted) {
           throw new OperationAbortedError("Operation aborted before dispatch", {
             operationId,

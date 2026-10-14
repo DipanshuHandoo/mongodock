@@ -1,7 +1,8 @@
 import { normalizeConfig } from "./config.js";
 import { createConnectionManager } from "./connections/manager.js";
-import { ConnectionError } from "./errors.js";
+import { ConnectionError, InvalidOptionError } from "./errors.js";
 import { createModelRegistry } from "./models/registry.js";
+import { createOperations } from "./operations/index.js";
 import { createExecutor } from "./hooks/pipeline.js";
 
 /** @type {WeakMap<object, { executor: ReturnType<typeof createExecutor>, config: import("./types.js").NormalizedConfig }>} */
@@ -55,6 +56,16 @@ export function createMongoService(input = {}, internal = {}) {
   /** @param {string} name */
   const createView = (name) =>
     Object.freeze({
+      .../** @type {import("./types.js").OperationMethods} */ (
+        /** @type {unknown} */ (
+          createOperations({
+            executor,
+            config,
+            connection: name,
+            resolveModel: (reference) => resolveModel(name, reference),
+          })
+        )
+      ),
       name,
       connect: () => manager.connect(name),
       disconnect: () => manager.disconnect(name),
@@ -69,6 +80,23 @@ export function createMongoService(input = {}, internal = {}) {
       listModels: () => registry(name).listModels(),
       unregisterModel: (/** @type {string} */ model) => registry(name).unregisterModel(model),
     });
+
+  /** @param {string} name @param {unknown} reference */
+  function resolveModel(name, reference) {
+    if (typeof reference === "string") return registry(name).getModel(reference);
+    const model = /** @type {any} */ (reference);
+    const connection = manager.getConnection(name);
+    if (
+      typeof model !== "function" ||
+      model.db !== connection ||
+      connection.models[model.modelName] !== model
+    ) {
+      throw new InvalidOptionError(
+        "model must be a registered name or a Model on the selected connection",
+      );
+    }
+    return model;
+  }
 
   /** @type {Map<string, import("./types.js").ConnectionView>} */
   const views = new Map();

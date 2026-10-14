@@ -88,7 +88,74 @@
  * @property {Record<string, unknown>} [options]
  * @property {import("mongoose").Model<any>} [model]
  *
- * @typedef {object} ConnectionView
+ * @typedef {object} CallOptions
+ * @property {AbortSignal} [signal]
+ * @property {string} [correlationId]
+ * @property {Record<string, unknown>} [metadata]
+ * @property {Hooks<any, any>} [hooks]
+ * @property {boolean | RetryOptions} [retry]
+ *
+ * @typedef {string | import("mongoose").Model<any>} ModelRef
+ */
+/**
+ * @template M
+ * @typedef {M extends import("mongoose").Model<infer T> ? T : any} DocOf
+ */
+/**
+ * @typedef {object} ReadInput
+ * @property {ModelRef} model
+ * @property {Record<string, unknown>} [filter]
+ * @property {unknown} [projection]
+ * @property {unknown} [sort]
+ * @property {unknown} [populate]
+ * @property {boolean} [lean]
+ * @property {number} [limit]
+ * @property {number} [skip]
+ * @property {Record<string, unknown>} [options]
+ *
+ * @typedef {object} WriteInput
+ * @property {ModelRef} model
+ * @property {Record<string, unknown>} [filter]
+ * @property {unknown} [id]
+ * @property {unknown} [update]
+ * @property {unknown} [data]
+ * @property {boolean} [allowAll]
+ * @property {boolean} [lean]
+ * @property {unknown} [projection]
+ * @property {unknown} [sort]
+ * @property {unknown} [populate]
+ * @property {Record<string, unknown>} [options]
+ *
+ * @typedef {object} AggregateInput
+ * @property {ModelRef} model
+ * @property {readonly Record<string, unknown>[]} pipeline
+ * @property {boolean} [allowWriteStages]
+ * @property {Record<string, unknown>} [options]
+ *
+ * @typedef {<I extends ReadInput & CallOptions>(input: I) => Promise<I["lean"] extends true ? import("mongoose").Require_id<DocOf<I["model"]>>[] : import("mongoose").HydratedDocument<DocOf<I["model"]>>[]>} ListMethod
+ * @typedef {<I extends ReadInput & CallOptions>(input: I) => Promise<(I["lean"] extends true ? import("mongoose").Require_id<DocOf<I["model"]>> : import("mongoose").HydratedDocument<DocOf<I["model"]>>) | null>} OneMethod
+ * @typedef {(input: (WriteInput | ReadInput) & CallOptions) => Promise<any>} AnyMethod
+ *
+ * @typedef {object} OperationMethods
+ * @property {ListMethod} find
+ * @property {ListMethod} findAll
+ * @property {OneMethod} findOne
+ * @property {OneMethod} findById
+ * @property {(input: ReadInput & CallOptions) => Promise<boolean>} exists
+ * @property {(input: ReadInput & CallOptions) => Promise<number>} countDocuments
+ * @property {<I extends WriteInput & CallOptions>(input: I) => Promise<import("mongoose").HydratedDocument<DocOf<I["model"]>>>} create
+ * @property {<I extends WriteInput & CallOptions>(input: I) => Promise<import("mongoose").HydratedDocument<DocOf<I["model"]>>[]>} insertMany
+ * @property {(input: WriteInput & CallOptions) => Promise<import("mongoose").UpdateWriteOpResult>} updateOne
+ * @property {(input: WriteInput & CallOptions) => Promise<import("mongoose").UpdateWriteOpResult>} updateMany
+ * @property {(input: WriteInput & CallOptions) => Promise<import("mongodb").DeleteResult>} deleteOne
+ * @property {(input: WriteInput & CallOptions) => Promise<import("mongodb").DeleteResult>} deleteMany
+ * @property {OneMethod} findOneAndUpdate
+ * @property {OneMethod} findByIdAndUpdate
+ * @property {OneMethod} findOneAndDelete
+ * @property {OneMethod} findByIdAndDelete
+ * @property {(input: AggregateInput & CallOptions) => Promise<any[]>} aggregate
+ *
+ * @typedef {object} ConnectionViewBase
  * @property {string} name
  * @property {() => Promise<ConnectionStatus>} connect
  * @property {() => Promise<ConnectionStatus>} disconnect
@@ -101,6 +168,8 @@
  * @property {(name: string) => boolean} hasModel
  * @property {() => readonly string[]} listModels
  * @property {(name: string) => boolean} unregisterModel
+ *
+ * @typedef {ConnectionViewBase & OperationMethods} ConnectionView
  *
  * @typedef {object} MongoServiceExtras
  * @property {string} defaultConnection
