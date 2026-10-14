@@ -1,6 +1,6 @@
 # Phase 08: idempotent seeding
 
-Status: planned. Prerequisites: Phase 06; Phase 07 for session integration.
+Status: implemented locally (verify passes). Prerequisites: Phase 06; Phase 07 for session integration.
 Authority: [master plan](../mongodock-implementation-plan.md);
 common rules: [phase index](README.md).
 

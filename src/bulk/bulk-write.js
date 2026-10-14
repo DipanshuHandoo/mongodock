@@ -77,11 +77,37 @@ function normalize(body, context) {
   }
 
   assertKnownKeys(body, BATCHED_KEYS, "bulkWrite");
-  const options = normalizeOptions(body.options, "bulkWrite", {
+  const controls = normalizeBatchControls(body, context);
+  const operations = body.operations;
+  const kind = sourceKind(operations);
+  if (!kind || typeof operations === "string") {
+    throw new InvalidOptionError("operations must be an array, Iterable, or AsyncIterable");
+  }
+  if (kind === "array") {
+    assertOperations(/** @type {any[]} */ (operations), {
+      allowAll,
+      maxBatchBytes: controls.maxBatchBytes,
+    });
+  }
+  return compact({ batching: true, operations, allowAll, ...controls });
+}
+
+/**
+ * Validates the batching controls shared by bulkWrite and seed.
+ * @param {any} body
+ * @param {{ limits: Record<string, any> }} context
+ * @param {{ method?: string, allowOrdered?: boolean, defaultConcurrency?: number | undefined }} [rules]
+ */
+export function normalizeBatchControls(
+  body,
+  context,
+  { method = "bulkWrite", allowOrdered = true, defaultConcurrency } = {},
+) {
+  const options = normalizeOptions(body.options, method, {
     forbid: ["ordered", "throwOnValidationError"],
   });
   const transactional = options.session !== undefined;
-  const ordered = body.ordered ?? false;
+  const ordered = allowOrdered ? (body.ordered ?? false) : false;
   if (typeof ordered !== "boolean") throw new InvalidOptionError("ordered must be a boolean");
   const failureMode = body.failureMode ?? (ordered || transactional ? "stop" : "continue");
   if (failureMode !== "continue" && failureMode !== "stop") {
@@ -89,7 +115,7 @@ function normalize(body, context) {
   }
   const sequential = ordered || transactional;
   const concurrency = integer(
-    body.concurrency ?? (sequential ? 1 : context.limits.concurrency),
+    body.concurrency ?? (sequential ? 1 : (defaultConcurrency ?? context.limits.concurrency)),
     "concurrency",
     1,
     MAX_CONCURRENCY,
@@ -116,25 +142,15 @@ function normalize(body, context) {
   if (body.onBatch !== undefined && typeof body.onBatch !== "function") {
     throw new InvalidOptionError("onBatch must be a function");
   }
-  const operations = body.operations;
-  const kind = sourceKind(operations);
-  if (!kind || typeof operations === "string") {
-    throw new InvalidOptionError("operations must be an array, Iterable, or AsyncIterable");
-  }
-  if (kind === "array")
-    assertOperations(/** @type {any[]} */ (operations), { allowAll, maxBatchBytes });
-  return compact({
-    batching: true,
-    operations,
+  return {
     options,
-    allowAll,
-    batchSize,
-    concurrency,
-    maxBatchBytes,
     ordered,
     failureMode,
+    concurrency,
+    batchSize,
+    maxBatchBytes,
     onBatch: body.onBatch,
-  });
+  };
 }
 
 /**
@@ -144,7 +160,7 @@ function normalize(body, context) {
  * @param {any} input
  * @param {import("../operations/spec.js").OperationEnv} env
  * @param {{ signal: AbortSignal, operationId?: string }} context
- * @param {{ windowFactor?: number }} [tuning]
+ * @param {{ windowFactor?: number, inspectBatch?: (batch: import("./batches.js").Batch) => void }} [tuning]
  */
 export async function runBatched(model, input, env, context, tuning = {}) {
   const { signal } = context;
@@ -210,7 +226,16 @@ export async function runBatched(model, input, env, context, tuning = {}) {
     async () => {
       try {
         const step = await batches.next();
-        return step.done ? null : step.value;
+        if (step.done) return null;
+        try {
+          tuning.inspectBatch?.(step.value);
+        } catch (error) {
+          // Rejected before dispatch, but consumed: account for it as unattempted.
+          ledger.fold(skippedBatch(step.value));
+          fatal ??= { error };
+          return null;
+        }
+        return step.value;
       } catch (error) {
         fatal ??= { error };
         return null;

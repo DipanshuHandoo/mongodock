@@ -39,7 +39,9 @@ export {
 /** @typedef {import("./types.js").ServiceHealth} ServiceHealth */
 /** @typedef {import("./types.js").BulkBatchOutcome} BulkBatchOutcome */
 /** @typedef {import("./types.js").BatchOptions} BatchOptions */
-/** @typedef {import("./types.js").SeedOptions} SeedOptions */
+/** @typedef {import("./types.js").NativeSeedInput} NativeSeedInput */
+/** @typedef {import("./types.js").BatchedSeedInput} BatchedSeedInput */
+/** @typedef {import("./types.js").SeedDryRunReport} SeedDryRunReport */
 /** @template T @typedef {import("./contracts.js").FindInput<T>} FindInput */
 /** @template T @typedef {import("./contracts.js").CreateInput<T>} CreateInput */
 /** @template T @typedef {import("./contracts.js").MutationInput<T>} MutationInput */

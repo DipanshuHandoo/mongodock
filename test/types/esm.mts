@@ -182,6 +182,30 @@ async function bulkTypes() {
 }
 void bulkTypes;
 
+async function seedTypes() {
+  const plan = await ops.seed({
+    model: Widgets,
+    keyFields: ["sku"],
+    dryRun: true,
+    records: [{ sku: "a", qty: 1 }],
+  });
+  const planned: number = plan.planned;
+  const report = await ops.seed({
+    model: Widgets,
+    keyFields: ["sku"],
+    batching: true,
+    uniqueSource: true,
+    records: [{ sku: "a", qty: 1 }],
+  });
+  const upserted: number = report.upsertedCount;
+  const native = await ops.seed({ model: Widgets, keyFields: ["sku"], records: [{ sku: "a" }] });
+  const matched: number = native.matchedCount;
+  void planned;
+  void upserted;
+  void matched;
+}
+void seedTypes;
+
 async function transactionTypes() {
   const total = await ops.withTransaction(async (tx) => {
     const session: import("mongodb").ClientSession = tx.session;

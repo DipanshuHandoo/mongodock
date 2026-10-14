@@ -4,6 +4,7 @@ import { paginateSpec } from "../pagination/offset.js";
 import { streamSpecs } from "../streaming/iterate.js";
 import { aggregateSpecs } from "./aggregate.js";
 import { bulkWriteSpec } from "../bulk/bulk-write.js";
+import { seedSpec } from "../seeding/seed.js";
 import { isPlain } from "./guards.js";
 import { readSpecs } from "./reads.js";
 import { writeSpecs } from "./writes.js";
@@ -14,6 +15,7 @@ const SPECS = Object.freeze([
   paginateCursorSpec,
   ...writeSpecs,
   bulkWriteSpec,
+  seedSpec,
   ...aggregateSpecs,
   ...streamSpecs,
 ]);

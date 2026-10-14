@@ -66,7 +66,7 @@ foundation:
   JSDoc configuration, errors, and shared contracts. Build language is `js`.
   Phases 1-7 are implemented (foundation, connections/models, hooks/plugins/retry,
   CRUD and aggregation, pagination and streaming, slot-pooled bulk, transactions
-  and health). Seeding is not implemented yet.
+  and health). Seeding is implemented (Phase 08).
 - Existing scripts provide ESM/CommonJS normal/minified builds, maps, declaration
   emission, Biome, Node tests, coverage gates, tarball checks, and Changesets.
 - CI covers Linux/Windows, Node 22/24, and Mongoose 8.24.5/9.11.2. The manual release workflow

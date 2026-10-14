@@ -165,6 +165,7 @@
  * @property {OneMethod} findOneAndDelete
  * @property {OneMethod} findByIdAndDelete
  * @property {BulkWriteMethod} bulkWrite
+ * @property {SeedMethod} seed
  * @property {(input: AggregateInput & CallOptions) => Promise<any[]>} aggregate
  *
  * @typedef {object} ConnectionViewBase
@@ -315,6 +316,41 @@
  *   (input: import("./contracts.js").BatchedBulkInput<any> & CallOptions): Promise<BulkReport>,
  * }} BulkWriteMethod
  *
+ * @typedef {object} SeedInputBase
+ * @property {ModelRef} model
+ * @property {readonly string[]} keyFields Top-level fields backed by an existing exact unique index.
+ * @property {boolean} [dryRun] Prepare, validate and plan; never write.
+ * @property {boolean} [updateExisting] `$set` provided non-key fields on existing records (default leaves them untouched).
+ * @property {Record<string, unknown>} [options]
+ *
+ * @typedef {SeedInputBase & { batching?: false, records: readonly Record<string, unknown>[] }} NativeSeedInput
+ * @typedef {SeedInputBase & {
+ *   batching: true,
+ *   records: Iterable<Record<string, unknown>> | AsyncIterable<Record<string, unknown>>,
+ *   uniqueSource?: boolean,
+ *   batchSize?: number,
+ *   concurrency?: number,
+ *   maxBatchBytes?: number,
+ *   failureMode?: "continue" | "stop",
+ *   onBatch?: (outcome: any) => void | Promise<void>,
+ * }} BatchedSeedInput
+ *
+ * @typedef {object} SeedDryRunReport
+ * @property {"dry-run"} status
+ * @property {"dry-run"} mode
+ * @property {boolean} batching
+ * @property {number} consumed
+ * @property {number} planned
+ * @property {number} batches
+ * @property {number} elapsedMs
+ *
+ * @typedef {{
+ *   (input: NativeSeedInput & { dryRun: true } & CallOptions): Promise<SeedDryRunReport>,
+ *   (input: BatchedSeedInput & { dryRun: true } & CallOptions): Promise<SeedDryRunReport>,
+ *   (input: NativeSeedInput & CallOptions): Promise<import("mongodb").BulkWriteResult>,
+ *   (input: BatchedSeedInput & CallOptions): Promise<BulkReport>,
+ * }} SeedMethod
+ *
  */
 /**
  * @template T
@@ -347,12 +383,4 @@
  * @property {number} processed
  * @property {number | null} totalDocs
  * @property {string | null} nextCursor
- */
-/**
- * @typedef {object} SeedOptions
- * @property {string[]} keyFields
- * @property {boolean} [dryRun]
- * @property {boolean} [updateExisting]
- * @property {boolean} [sourceKeysUnique]
- */
-export {};
+ */ export {};
