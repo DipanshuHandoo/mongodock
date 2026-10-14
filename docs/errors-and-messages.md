@@ -18,3 +18,8 @@ wrapper.
 unrecognized errors it reports `ERR_DATABASE` and uncertain outcome; this is a
 diagnostic classification, not a returned database success. Raw error/cause
 objects can contain credentials and must not be logged without redaction.
+
+## TransactionError
+
+`TransactionError` (`ERR_TRANSACTION`, with an `errors` array) is raised for misuse of a transaction scope (concurrent, nested, closed or stale-attempt use), standalone-server rejection (`notDispatched`) and commit/abort failures (`failed`, or `uncertain` when the driver labels the commit `UnknownTransactionCommitResult`). The callback's own errors are rethrown unchanged. See [Transactions](transactions.md).
+

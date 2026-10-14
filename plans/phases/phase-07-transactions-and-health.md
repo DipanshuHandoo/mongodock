@@ -1,6 +1,6 @@
 # Phase 07: transactions and health
 
-Status: planned. Prerequisite: Phase 04.
+Status: implemented locally (verify passes). Prerequisite: Phase 04.
 Authority: [master plan](../mongodock-implementation-plan.md);
 common rules: [phase index](README.md).
 

@@ -24,3 +24,19 @@ factory or operation exists before its feature phase.
 
 Native causes are preserved and sensitive; safe diagnostics are intentionally
 minimal. See [Errors](errors-and-messages.md) and [Configuration](configuration.md).
+
+## Transactions and health
+
+| Export | Contract |
+| --- | --- |
+| TransactionError | Transaction scope misuse or commit/abort failure, ERR_TRANSACTION |
+| service.withTransaction(fn, options?) / use(name).withTransaction | Runs fn with tx = {session, ops, attempt, transactionId, signal}; see [Transactions](transactions.md) |
+| service.healthCheck(options?) | Aggregate readiness across connections; see [Health](health.md) |
+| use(name).healthCheck(options?) | Per-connection status and ping probe |
+
+## Seeding
+
+| Export | Contract |
+| --- | --- |
+| service.seed(input) / use(name).seed | Idempotent unique-key upserts with dry-run; returns a BulkWriteResult, a BulkReport (batching) or a dry-run report; see [Seeding](seeding.md) |
+

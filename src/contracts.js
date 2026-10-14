@@ -58,7 +58,7 @@
  * @property {"continue" | "stop"} [failureMode]
  * @property {boolean} [allowAll]
  * @property {AbortSignal} [signal]
- * @property {(report: import("./types.js").BulkReport) => void | Promise<void>} [onBatch]
+ * @property {(outcome: import("./bulk/outcomes.js").BatchOutcome) => void | Promise<void>} [onBatch] Awaited per batch; may run concurrently and out of index order.
  */
 /**
  * @template T

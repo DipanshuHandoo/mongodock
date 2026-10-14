@@ -88,7 +88,87 @@
  * @property {Record<string, unknown>} [options]
  * @property {import("mongoose").Model<any>} [model]
  *
- * @typedef {object} ConnectionView
+ * @typedef {object} CallOptions
+ * @property {AbortSignal} [signal]
+ * @property {string} [correlationId]
+ * @property {Record<string, unknown>} [metadata]
+ * @property {Hooks<any, any>} [hooks]
+ * @property {boolean | RetryOptions} [retry]
+ *
+ * @typedef {string | import("mongoose").Model<any>} ModelRef
+ */
+/**
+ * @template M
+ * @typedef {M extends import("mongoose").Model<infer T> ? T : any} DocOf
+ */
+/**
+ * @typedef {object} ReadInput
+ * @property {ModelRef} model
+ * @property {Record<string, unknown>} [filter]
+ * @property {unknown} [projection]
+ * @property {unknown} [sort]
+ * @property {unknown} [populate]
+ * @property {boolean} [lean]
+ * @property {number} [limit]
+ * @property {number} [skip]
+ * @property {Record<string, unknown>} [options]
+ *
+ * @typedef {object} WriteInput
+ * @property {ModelRef} model
+ * @property {Record<string, unknown>} [filter]
+ * @property {unknown} [id]
+ * @property {unknown} [update]
+ * @property {unknown} [data]
+ * @property {boolean} [allowAll]
+ * @property {boolean} [lean]
+ * @property {unknown} [projection]
+ * @property {unknown} [sort]
+ * @property {unknown} [populate]
+ * @property {Record<string, unknown>} [options]
+ *
+ * @typedef {object} AggregateInput
+ * @property {ModelRef} model
+ * @property {readonly Record<string, unknown>[]} pipeline
+ * @property {boolean} [allowWriteStages]
+ * @property {Record<string, unknown>} [options]
+ *
+ * @typedef {<I extends ReadInput & CallOptions>(input: I) => Promise<I["lean"] extends true ? import("mongoose").Require_id<DocOf<I["model"]>>[] : import("mongoose").HydratedDocument<DocOf<I["model"]>>[]>} ListMethod
+ * @typedef {<I extends ReadInput & CallOptions>(input: I) => Promise<(I["lean"] extends true ? import("mongoose").Require_id<DocOf<I["model"]>> : import("mongoose").HydratedDocument<DocOf<I["model"]>>) | null>} OneMethod
+ * @typedef {(input: (WriteInput | ReadInput) & CallOptions) => Promise<any>} AnyMethod
+ *
+ * @typedef {ReadInput & { page?: number, includeTotal?: boolean }} PageInput
+ * @typedef {ReadInput & { cursor?: string }} CursorInput
+ * @typedef {Omit<ReadInput, "limit" | "skip"> & { batchSize?: number }} IterateInput
+ * @typedef {IterateInput & { strategy?: "cursor" | "keyset", includeTotal?: boolean }} BatchInput
+ * @typedef {Omit<AggregateInput, "pipeline"> & { pipeline: readonly Record<string, unknown>[], batchSize?: number }} AggregateCursorInput
+ *
+ * @typedef {object} OperationMethods
+ * @property {<I extends PageInput & CallOptions>(input: I) => Promise<OffsetPage<I["lean"] extends true ? import("mongoose").Require_id<DocOf<I["model"]>> : import("mongoose").HydratedDocument<DocOf<I["model"]>>>>} paginate
+ * @property {<I extends CursorInput & CallOptions>(input: I) => Promise<CursorPage<I["lean"] extends true ? import("mongoose").Require_id<DocOf<I["model"]>> : import("mongoose").HydratedDocument<DocOf<I["model"]>>>>} paginateCursor
+ * @property {<I extends IterateInput & CallOptions>(input: I) => AsyncGenerator<I["lean"] extends true ? import("mongoose").Require_id<DocOf<I["model"]>> : import("mongoose").HydratedDocument<DocOf<I["model"]>>, void, void>} iterate
+ * @property {<I extends BatchInput & CallOptions>(input: I) => AsyncGenerator<BatchEnvelope<I["lean"] extends true ? import("mongoose").Require_id<DocOf<I["model"]>> : import("mongoose").HydratedDocument<DocOf<I["model"]>>>, void, void>} iterateBatches
+ * @property {(input: AggregateCursorInput & CallOptions) => AsyncGenerator<any, void, void>} aggregateCursor
+ * @property {ListMethod} find
+ * @property {ListMethod} findAll
+ * @property {OneMethod} findOne
+ * @property {OneMethod} findById
+ * @property {(input: ReadInput & CallOptions) => Promise<boolean>} exists
+ * @property {(input: ReadInput & CallOptions) => Promise<number>} countDocuments
+ * @property {<I extends WriteInput & CallOptions>(input: I) => Promise<import("mongoose").HydratedDocument<DocOf<I["model"]>>>} create
+ * @property {<I extends WriteInput & CallOptions>(input: I) => Promise<import("mongoose").HydratedDocument<DocOf<I["model"]>>[]>} insertMany
+ * @property {(input: WriteInput & CallOptions) => Promise<import("mongoose").UpdateWriteOpResult>} updateOne
+ * @property {(input: WriteInput & CallOptions) => Promise<import("mongoose").UpdateWriteOpResult>} updateMany
+ * @property {(input: WriteInput & CallOptions) => Promise<import("mongodb").DeleteResult>} deleteOne
+ * @property {(input: WriteInput & CallOptions) => Promise<import("mongodb").DeleteResult>} deleteMany
+ * @property {OneMethod} findOneAndUpdate
+ * @property {OneMethod} findByIdAndUpdate
+ * @property {OneMethod} findOneAndDelete
+ * @property {OneMethod} findByIdAndDelete
+ * @property {BulkWriteMethod} bulkWrite
+ * @property {SeedMethod} seed
+ * @property {(input: AggregateInput & CallOptions) => Promise<any[]>} aggregate
+ *
+ * @typedef {object} ConnectionViewBase
  * @property {string} name
  * @property {() => Promise<ConnectionStatus>} connect
  * @property {() => Promise<ConnectionStatus>} disconnect
@@ -101,9 +181,53 @@
  * @property {(name: string) => boolean} hasModel
  * @property {() => readonly string[]} listModels
  * @property {(name: string) => boolean} unregisterModel
+ * @property {<T>(callback: (tx: TransactionContext) => T | Promise<T>, options?: TransactionOptions) => Promise<Awaited<T>>} withTransaction
+ * @property {(options?: HealthOptions) => Promise<ConnectionHealth>} healthCheck
+ *
+ * @typedef {object} TransactionContext
+ * @property {import("mongodb").ClientSession} session Explicit session of this attempt; prefer `ops`.
+ * @property {OperationMethods} ops Operations pinned to `session`; sequential, valid for this attempt only.
+ * @property {number} attempt 1-based; greater than 1 when the driver replays the callback.
+ * @property {string} transactionId
+ * @property {AbortSignal} signal
+ *
+ * @typedef {object} TransactionOptions
+ * @property {import("mongodb").TransactionOptions} [transactionOptions]
+ * @property {AbortSignal} [signal]
+ * @property {string} [correlationId]
+ * @property {Hooks} [hooks]
+ * @property {Record<string, unknown>} [metadata]
+ *
+ * @typedef {object} HealthOptions
+ * @property {boolean} [probe] Default true; false reports current state without any network call.
+ * @property {number} [timeoutMS] Probe budget; defaults to `limits.probeTimeoutMS`.
+ * @property {AbortSignal} [signal]
+ * @property {string} [correlationId]
+ * @property {Hooks} [hooks]
+ * @property {Record<string, unknown>} [metadata]
+ *
+ * @typedef {object} ConnectionHealth
+ * @property {string} name
+ * @property {boolean} ready
+ * @property {ConnectionStatus["state"]} state
+ * @property {boolean} probed False for status-only reports.
+ * @property {string} checkedAt ISO timestamp.
+ * @property {number} [latencyMs]
+ * @property {boolean} [deadlineExpired]
+ * @property {boolean} [nativeOperationActive] The driver ping could not be cancelled and may still be running.
+ * @property {{ code: string, databaseOutcome?: string }} [error]
+ *
+ * @typedef {object} ServiceHealth
+ * @property {boolean} ready True when every required connection is ready.
+ * @property {string} checkedAt
+ * @property {readonly string[]} required
+ * @property {Readonly<Record<string, ConnectionHealth>>} connections
+ *
+ * @typedef {ConnectionViewBase & OperationMethods} ConnectionView
  *
  * @typedef {object} MongoServiceExtras
  * @property {string} defaultConnection
+ * @property {(options?: HealthOptions) => Promise<ServiceHealth>} healthCheck
  * @property {(name?: string) => Promise<ConnectionStatus>} connect
  * @property {(name?: string) => Promise<ConnectionStatus>} disconnect
  * @property {() => Promise<readonly ConnectionStatus[]>} connectAll
@@ -115,7 +239,7 @@
  * @property {() => readonly string[]} listConnections
  * @property {(name: string) => ConnectionView} use
  *
- * @typedef {Omit<ConnectionView, "connect" | "disconnect" | "getConnection" | "isConnected" | "getStatus"> & MongoServiceExtras} MongoService
+ * @typedef {Omit<ConnectionView, "connect" | "disconnect" | "getConnection" | "isConnected" | "getStatus" | "healthCheck"> & MongoServiceExtras} MongoService
  *
  * @typedef {object} Limits
  * @property {number} [readLimit]
@@ -168,9 +292,11 @@
  *
  * @typedef {object} BulkReport
  * @property {"completed" | "partial" | "failed" | "cancelled"} status
+ * @property {"batched"} mode
+ * @property {boolean} ordered
  * @property {number} consumed
  * @property {number} attempted
- * @property {number | null} knownSucceeded
+ * @property {number} knownSucceeded
  * @property {number} failed
  * @property {number} uncertain
  * @property {number | null} unattempted
@@ -179,7 +305,51 @@
  * @property {number} modifiedCount
  * @property {number} deletedCount
  * @property {number} upsertedCount
+ * @property {{ total: number, succeeded: number, partial: number, failed: number, uncertain: number, unattempted: number }} batches
+ * @property {{ samples: readonly { batchIndex: number, index: number | null, kind: string, code?: number | string | undefined }[], omitted: number }} diagnostics Index and error-code metadata only; no messages, keys or documents.
  * @property {number} elapsedMs
+ *
+ * @typedef {import("./bulk/outcomes.js").BatchOutcome} BulkBatchOutcome
+ *
+ * @typedef {{
+ *   (input: import("./contracts.js").NativeBulkInput<any> & CallOptions): Promise<import("mongodb").BulkWriteResult>,
+ *   (input: import("./contracts.js").BatchedBulkInput<any> & CallOptions): Promise<BulkReport>,
+ * }} BulkWriteMethod
+ *
+ * @typedef {object} SeedInputBase
+ * @property {ModelRef} model
+ * @property {readonly string[]} keyFields Top-level fields backed by an existing exact unique index.
+ * @property {boolean} [dryRun] Prepare, validate and plan; never write.
+ * @property {boolean} [updateExisting] `$set` provided non-key fields on existing records (default leaves them untouched).
+ * @property {Record<string, unknown>} [options]
+ *
+ * @typedef {SeedInputBase & { batching?: false, records: readonly Record<string, unknown>[] }} NativeSeedInput
+ * @typedef {SeedInputBase & {
+ *   batching: true,
+ *   records: Iterable<Record<string, unknown>> | AsyncIterable<Record<string, unknown>>,
+ *   uniqueSource?: boolean,
+ *   batchSize?: number,
+ *   concurrency?: number,
+ *   maxBatchBytes?: number,
+ *   failureMode?: "continue" | "stop",
+ *   onBatch?: (outcome: any) => void | Promise<void>,
+ * }} BatchedSeedInput
+ *
+ * @typedef {object} SeedDryRunReport
+ * @property {"dry-run"} status
+ * @property {"dry-run"} mode
+ * @property {boolean} batching
+ * @property {number} consumed
+ * @property {number} planned
+ * @property {number} batches
+ * @property {number} elapsedMs
+ *
+ * @typedef {{
+ *   (input: NativeSeedInput & { dryRun: true } & CallOptions): Promise<SeedDryRunReport>,
+ *   (input: BatchedSeedInput & { dryRun: true } & CallOptions): Promise<SeedDryRunReport>,
+ *   (input: NativeSeedInput & CallOptions): Promise<import("mongodb").BulkWriteResult>,
+ *   (input: BatchedSeedInput & CallOptions): Promise<BulkReport>,
+ * }} SeedMethod
  *
  */
 /**
@@ -213,12 +383,4 @@
  * @property {number} processed
  * @property {number | null} totalDocs
  * @property {string | null} nextCursor
- */
-/**
- * @typedef {object} SeedOptions
- * @property {string[]} keyFields
- * @property {boolean} [dryRun]
- * @property {boolean} [updateExisting]
- * @property {boolean} [sourceKeysUnique]
- */
-export {};
+ */ export {};

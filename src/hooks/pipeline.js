@@ -242,6 +242,10 @@ export function createExecutor({ config, admit, random = Math.random }) {
           }
           current = cloneOptions(next);
         }
+        // Final authority over the hook-transformed input: revalidation and safety guards.
+        if (typeof options.finalizeInput === "function") {
+          current = cloneOptions(await options.finalizeInput(current));
+        }
         if (controller.signal.aborted) {
           throw new OperationAbortedError("Operation aborted before dispatch", {
             operationId,
@@ -411,7 +415,11 @@ export function createExecutor({ config, admit, random = Math.random }) {
     let result;
     try {
       const input = await op.prepare();
-      result = await op.transform(await op.attempts(input, options.run));
+      const produced = await op.attempts(input, options.run);
+      result = await op.transform(produced);
+      if (typeof options.restoreResult === "function") {
+        result = options.restoreResult(produced, result);
+      }
     } catch (error) {
       throw await op.fail(error);
     }

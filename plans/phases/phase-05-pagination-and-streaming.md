@@ -1,6 +1,6 @@
 # Phase 05: pagination and streaming
 
-Status: planned. Prerequisite: Phase 04.
+Status: implemented locally (`npm run verify` passes; 105 unit + 24 integration tests; coverage 95.3% lines / 94.7% branches / 88.7% functions). Prerequisite: Phase 04.
 Authority: [master plan](../mongodock-implementation-plan.md);
 common rules: [phase index](README.md).
 

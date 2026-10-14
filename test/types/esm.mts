@@ -104,3 +104,122 @@ void scope;
 void badHooks;
 void OperationVetoError;
 void OperationAbortedError;
+
+import type mongoose from "mongoose";
+import { createMongoService as createOpsService } from "@dipanshuhandoo/mongodock";
+
+interface Widget {
+  sku: string;
+  qty: number;
+}
+declare const Widgets: mongoose.Model<Widget>;
+const ops = createOpsService({ uri: "mongodb://localhost/test" });
+async function operationTypes() {
+  const hydrated = await ops.findOne({ model: Widgets, filter: { sku: "a" } });
+  const hydratedSku: string | undefined = hydrated?.sku;
+  const lean = await ops.find({ model: Widgets, lean: true });
+  const leanQty: number | undefined = lean[0]?.qty;
+  const count: number = await ops.countDocuments({ model: "Widget" });
+  const present: boolean = await ops.exists({ model: "Widget" });
+  // @ts-expect-error model is required.
+  await ops.find({ filter: {} });
+  void hydratedSku;
+  void leanQty;
+  void count;
+  void present;
+}
+void operationTypes;
+
+async function pagingTypes() {
+  const page = await ops.paginate({ model: Widgets, lean: true, page: 2 });
+  const total: number | null = page.totalDocs;
+  const sku: string | undefined = page.docs[0]?.sku;
+  const keyset = await ops.paginateCursor({ model: Widgets, lean: true, sort: { sku: 1 } });
+  const next: string | null = keyset.nextCursor;
+  for await (const doc of ops.iterate({ model: Widgets, lean: true })) {
+    const qty: number = doc.qty;
+    void qty;
+  }
+  for await (const batch of ops.iterateBatches({
+    model: Widgets,
+    lean: true,
+    strategy: "keyset",
+  })) {
+    const size: number = batch.docs.length;
+    const batchTotal: number | null = batch.totalDocs;
+    void size;
+    void batchTotal;
+  }
+  for await (const row of ops.aggregateCursor({ model: Widgets, pipeline: [{ $match: {} }] })) {
+    void row;
+  }
+  void total;
+  void sku;
+  void next;
+}
+void pagingTypes;
+
+async function bulkTypes() {
+  const native = await ops.bulkWrite({
+    model: Widgets,
+    operations: [{ insertOne: { document: { sku: "a", qty: 1 } } }],
+  });
+  const inserted: number = native.insertedCount;
+  const report = await ops.bulkWrite({
+    model: Widgets,
+    batching: true,
+    operations: [{ insertOne: { document: { sku: "a", qty: 1 } } }],
+    onBatch: (outcome) => {
+      const status: string = outcome.status;
+      void status;
+    },
+  });
+  const consumed: number = report.consumed;
+  const batches: number = report.batches.total;
+  void inserted;
+  void consumed;
+  void batches;
+}
+void bulkTypes;
+
+async function seedTypes() {
+  const plan = await ops.seed({
+    model: Widgets,
+    keyFields: ["sku"],
+    dryRun: true,
+    records: [{ sku: "a", qty: 1 }],
+  });
+  const planned: number = plan.planned;
+  const report = await ops.seed({
+    model: Widgets,
+    keyFields: ["sku"],
+    batching: true,
+    uniqueSource: true,
+    records: [{ sku: "a", qty: 1 }],
+  });
+  const upserted: number = report.upsertedCount;
+  const native = await ops.seed({ model: Widgets, keyFields: ["sku"], records: [{ sku: "a" }] });
+  const matched: number = native.matchedCount;
+  void planned;
+  void upserted;
+  void matched;
+}
+void seedTypes;
+
+async function transactionTypes() {
+  const total = await ops.withTransaction(async (tx) => {
+    const session: import("mongodb").ClientSession = tx.session;
+    const created = await tx.ops.create({ model: Widgets, data: { sku: "t", qty: 1 } });
+    void session;
+    return created.qty + tx.attempt;
+  });
+  const sum: number = total;
+  const health = await ops.healthCheck({ probe: false, timeoutMS: 1000 });
+  const ready: boolean = health.ready;
+  const one = await ops.use("default").healthCheck();
+  const latency: number | undefined = one.latencyMs;
+  void sum;
+  void ready;
+  void latency;
+}
+void transactionTypes;

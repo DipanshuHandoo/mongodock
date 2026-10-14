@@ -7,6 +7,7 @@ export {
 } from "./config.js";
 export { createMongoService } from "./create-mongo-service.js";
 export {
+  BulkError,
   ConfigurationError,
   ConnectionError,
   HookError,
@@ -18,6 +19,7 @@ export {
   OperationVetoError,
   ShutdownTimeoutError,
   toSafeDiagnostic,
+  TransactionError,
 } from "./errors.js";
 /** @typedef {import("./types.js").MongoService} MongoService */
 /** @typedef {import("./types.js").ConnectionView} ConnectionView */
@@ -30,8 +32,16 @@ export {
 /** @typedef {import("./types.js").RetryOptions} RetryOptions */
 /** @typedef {import("./types.js").OperationContext} OperationContext */
 /** @typedef {import("./types.js").BulkReport} BulkReport */
+/** @typedef {import("./types.js").TransactionContext} TransactionContext */
+/** @typedef {import("./types.js").TransactionOptions} TransactionOptions */
+/** @typedef {import("./types.js").HealthOptions} HealthOptions */
+/** @typedef {import("./types.js").ConnectionHealth} ConnectionHealth */
+/** @typedef {import("./types.js").ServiceHealth} ServiceHealth */
+/** @typedef {import("./types.js").BulkBatchOutcome} BulkBatchOutcome */
 /** @typedef {import("./types.js").BatchOptions} BatchOptions */
-/** @typedef {import("./types.js").SeedOptions} SeedOptions */
+/** @typedef {import("./types.js").NativeSeedInput} NativeSeedInput */
+/** @typedef {import("./types.js").BatchedSeedInput} BatchedSeedInput */
+/** @typedef {import("./types.js").SeedDryRunReport} SeedDryRunReport */
 /** @template T @typedef {import("./contracts.js").FindInput<T>} FindInput */
 /** @template T @typedef {import("./contracts.js").CreateInput<T>} CreateInput */
 /** @template T @typedef {import("./contracts.js").MutationInput<T>} MutationInput */

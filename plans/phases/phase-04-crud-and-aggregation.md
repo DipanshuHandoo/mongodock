@@ -1,6 +1,6 @@
 # Phase 04: CRUD and aggregation
 
-Status: planned. Prerequisite: Phase 03.
+Status: implemented locally; `npm run verify` passes (unit, integration against local standalone MongoDB, tarball check incl. Mongoose 9 types). Size budget raised to 150/640 kB packed/unpacked, pending user review. Transactions with sessions are untested here (standalone server; Phase 7). Prerequisite: Phase 03.
 Authority: [master plan](../mongodock-implementation-plan.md);
 common rules: [phase index](README.md).
 

@@ -101,7 +101,7 @@ async function preflight() {
   console.log("Release preflight passed.");
   if (!flag("--ci")) {
     console.log("\nNext: run the full verification (npm run verify), then start the release:");
-    console.log("  gh workflow run release.yml -f confirm-version=" + pkg.version);
+    console.log(`  gh workflow run release.yml -f confirm-version=${pkg.version}`);
     console.log("The workflow re-verifies, waits for 'npm' environment approval, then publishes.");
   }
 }
