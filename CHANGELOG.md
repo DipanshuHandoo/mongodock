@@ -1,6 +1,16 @@
 # Changelog
 
 Release notes are generated from changesets when the **Version Packages** PR is merged.
+## 1.0.0
+
+### Major Changes
+
+- bffba36: All 10 phases completed
+
+### Patch Changes
+
+- bffba36: Reconcile README and guides with the implemented API, add a migration guide, and replace the stale foundation-only examples.
+
 ## 0.2.0
 
 ### Minor Changes
