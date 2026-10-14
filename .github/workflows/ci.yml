@@ -40,6 +40,29 @@ jobs:
         run: npx playwright install --with-deps chromium
       - run: npm run verify
 
+  integration-mongo-7:
+    name: integration (mongodb 7.0, mongoose ${{ matrix.mongoose }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        mongoose: [8.24.5, 9.11.2]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Select tested Mongoose peer without changing the lockfile
+        run: npm install --no-save --package-lock=false --ignore-scripts mongoose@${{ matrix.mongoose }}
+      - run: npm run test:integration
+        env:
+          MONGODOCK_TEST_MONGO_VERSION: "7.0"
+
   scale:
     name: scale (ubuntu, node 24)
     runs-on: ubuntu-latest

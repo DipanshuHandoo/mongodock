@@ -23,8 +23,13 @@ documents at ~72k ops/s; that is a single-machine figure, not a benchmark.
 
 ## Evidence and open items
 
-- Covered locally: scheduler scale, stream-to-seed over a real database (slow sink, idempotent re-run,
-  mid-stream cancellation), Mongoose 8 and 9 package consumption (`test:package`).
-- CI only: Linux and Windows on Node 22 and 24 with Mongoose 8.24.5 and 9.11.2, and the Linux scale job.
-- Not yet verified: MongoDB 7.0 versus 8.0 server matrix, transactions on Mongoose 8, shutdown-during-bulk
-  and fault-injection tests against real driver errors.
+Verified locally (Windows, Node 24): the integration suite (57 tests) against a temporary replica set on
+MongoDB 8.0 and 7.0, and on Mongoose 8.24.5 and 9.11.2, including transactions, seed-plus-bulk in a
+transaction (commit and rollback), stream-to-seed with a slow sink, mid-stream cancellation,
+`disconnectAll` during an in-flight seed, and hook ordering for success, duplicate-key, partial bulk and
+unsatisfiable write-concern failures.
+
+CI only (not run on GitHub yet): Linux and Windows on Node 22 and 24 with both Mongoose versions, the
+MongoDB 7.0 integration job, and the Linux scale job.
+
+Not covered: network-drop fault injection and CI-measured benchmark numbers.
