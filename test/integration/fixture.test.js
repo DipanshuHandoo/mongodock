@@ -2,8 +2,10 @@ import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { it } from "node:test";
 import mongoose from "mongoose";
+import { skipWithoutReplicaSet } from "./topology.js";
 
-it("isolated replica-set fixture supports ping, separate databases, and rollback", async () => {
+it("isolated replica-set fixture supports ping, separate databases, and rollback", async (t) => {
+  if (await skipWithoutReplicaSet(t)) return;
   const uri = process.env.MONGODOCK_TEST_URI;
   assert.ok(uri, "Run through npm run test:integration");
   const prefix = `mongodock_test_${randomUUID().replaceAll("-", "")}`;

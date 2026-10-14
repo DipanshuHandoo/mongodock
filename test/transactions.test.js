@@ -202,6 +202,19 @@ describe("withTransaction", () => {
     );
   });
 
+  it("maps the driver's standalone retryable-writes rejection too", async () => {
+    const driver = new Error(
+      "This MongoDB deployment does not support retryable writes. Please add retryWrites=false to your connection string.",
+    );
+    const { withTransaction } = setup(commitOnce);
+    await assert.rejects(
+      withTransaction(async () => {
+        throw driver;
+      }),
+      (error) => error instanceof TransactionError && error.cause === driver,
+    );
+  });
+
   it("rejects concurrent use of one transaction and allows sequential use", async () => {
     const { withTransaction, calls } = setup(commitOnce);
     await withTransaction(async (tx) => {

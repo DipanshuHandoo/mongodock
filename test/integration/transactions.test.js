@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { it } from "node:test";
 import mongoose from "mongoose";
+import { skipWithoutReplicaSet } from "./topology.js";
 import { createMongoService, TransactionError } from "../../src/index.js";
 
 const uri = () => {
@@ -31,7 +32,8 @@ async function withService(/** @type {(db: any) => Promise<void>} */ body) {
 
 const count = (/** @type {any} */ db) => db.countDocuments({ model: "Account", filter: {} });
 
-it("commits every scoped write and returns the callback value", async () => {
+it("commits every scoped write and returns the callback value", async (t) => {
+  if (await skipWithoutReplicaSet(t)) return;
   await withService(async (db) => {
     const result = await db.withTransaction(async (/** @type {any} */ tx) => {
       await tx.ops.create({ model: "Account", data: { key: "a", n: 1 } });
@@ -44,7 +46,8 @@ it("commits every scoped write and returns the callback value", async () => {
   });
 });
 
-it("rolls back everything when the callback throws and surfaces its error", async () => {
+it("rolls back everything when the callback throws and surfaces its error", async (t) => {
+  if (await skipWithoutReplicaSet(t)) return;
   await withService(async (db) => {
     const failure = new Error("business rule");
     await assert.rejects(
@@ -58,7 +61,8 @@ it("rolls back everything when the callback throws and surfaces its error", asyn
   });
 });
 
-it("aborts the whole transaction on a duplicate-key error", async () => {
+it("aborts the whole transaction on a duplicate-key error", async (t) => {
+  if (await skipWithoutReplicaSet(t)) return;
   await withService(async (db) => {
     await db.create({ model: "Account", data: { key: "dup" } });
     await assert.rejects(
@@ -72,7 +76,8 @@ it("aborts the whole transaction on a duplicate-key error", async () => {
   });
 });
 
-it("makes uncommitted writes invisible outside the transaction until commit", async () => {
+it("makes uncommitted writes invisible outside the transaction until commit", async (t) => {
+  if (await skipWithoutReplicaSet(t)) return;
   await withService(async (db) => {
     await db.withTransaction(async (/** @type {any} */ tx) => {
       await tx.ops.create({ model: "Account", data: { key: "a" } });
@@ -82,7 +87,8 @@ it("makes uncommitted writes invisible outside the transaction until commit", as
   });
 });
 
-it("runs bulk writes inside a session and rolls them back", async () => {
+it("runs bulk writes inside a session and rolls them back", async (t) => {
+  if (await skipWithoutReplicaSet(t)) return;
   await withService(async (db) => {
     await assert.rejects(
       db.withTransaction(async (/** @type {any} */ tx) => {
@@ -124,7 +130,8 @@ it("rejects scoped use after the callback finished", async () => {
   });
 });
 
-it("rolls back hydrated documents so isNew is restored on abort", async () => {
+it("rolls back hydrated documents so isNew is restored on abort", async (t) => {
+  if (await skipWithoutReplicaSet(t)) return;
   await withService(async (db) => {
     /** @type {any} */
     let created;

@@ -39,7 +39,10 @@ export function createSessionVerifier(getConnection) {
 
 /** @param {any} error */
 const isStandaloneRejection = (error) =>
-  error?.code === 20 || /Transaction numbers are only allowed/i.test(String(error?.message ?? ""));
+  error?.code === 20 ||
+  /Transaction numbers are only allowed|does not support retryable writes/i.test(
+    String(error?.message ?? ""),
+  );
 
 /**
  * @param {object} input
