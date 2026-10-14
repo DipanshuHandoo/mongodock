@@ -1,6 +1,6 @@
 {
   "name": "@dipanshuhandoo/mongodock",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Connection-aware Mongoose service toolkit with bounded processing and explicit lifecycle contracts.",
   "keywords": [
     "mongoose",
