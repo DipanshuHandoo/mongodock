@@ -1,7 +1,3 @@
 # Changelog
 
-## 0.1.0
-
-### Minor Changes
-
-- 60c115b: setup changelog and version update
+Release notes are generated from changesets when the **Version Packages** PR is merged.

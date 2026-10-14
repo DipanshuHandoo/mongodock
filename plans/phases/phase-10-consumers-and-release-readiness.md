@@ -1,6 +1,6 @@
 # Phase 10: consumer experience and release readiness
 
-Status: planned. Prerequisite: Phase 09.
+Status: implemented locally (docs, examples, tarball checks, audit; verify passes). Publishing not performed; consumer adoption and external controls outstanding. Prerequisite: Phase 09.
 Authority: [master plan](../mongodock-implementation-plan.md);
 common rules: [phase index](README.md).
 

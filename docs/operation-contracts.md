@@ -1,7 +1,7 @@
-# Operation contracts for later phases
+# Operation contracts
 
-These are agreed implementation contracts, not Phase 1 executable APIs.
-The factory and methods are added and exported only in their feature phase.
+The agreed contracts behind the implemented methods. Where this page and a feature guide
+differ, the feature guide and the shipped declarations are authoritative.
 
 ## Shared input
 

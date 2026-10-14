@@ -1,8 +1,7 @@
 # Mongodock documentation
 
-Phase 1 delivers configuration, control errors, shared declarations, build
-validation, and isolated database fixtures. Future service APIs are contracts
-only, not implemented methods.
+Guides for the complete service: connections, models, CRUD, pagination and streaming,
+bulk and seeding, transactions, health, hooks/plugins/retries, scale evidence and migration.
 
 - [Getting started](getting-started.md)
 - [Configuration](configuration.md)
@@ -23,3 +22,5 @@ only, not implemented methods.
 - [Health](health.md)
 - [Seeding](seeding.md)
 - [Scale and reliability](scale.md)
+- [Migrating from a singleton service](migration.md)
+- [Operation contracts](operation-contracts.md)

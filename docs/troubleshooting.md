@@ -1,14 +1,13 @@
 # Troubleshooting
 
-**No createMongoService export:** Phase 1 is foundation-only. Database factory
-and operations arrive in subsequent phases; the old withRetry demo is removed.
-
+**Operation rejected before reaching the database:** Control errors are `MongoDockError`s with a
+`code` (see [Errors](errors-and-messages.md)). `databaseOutcome: \
 **Named config rejected:** Set defaultConnection to an existing name. Do not
 combine top-level uri/options with connections.
 
 **Caller-owned connection rejected:** Set bufferCommands false on the connection
-and ensure it exposes the Mongoose public connection contract. Native lifecycle
-management is not implemented by normalization.
+and ensure it exposes the Mongoose public connection contract. The service never closes
+a connection you supplied.
 
 **Integration prerequisites missing:** Linux needs a running Docker daemon.
 Windows fixtures download verified native binaries. Supply an explicitly opted-in

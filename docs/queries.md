@@ -20,7 +20,7 @@ model name or a `Model` created on the same connection. Methods exist on the ser
 Reads accept `filter`, `projection`, `sort`, `populate` (max 5 paths, depth 2), `lean`,
 `limit`, `skip` and native `options`. Results are hydrated documents unless `lean: true`.
 Unbounded reads are rejected: use `limit` within the configured maximum. Large scans
-belong to the streaming and batched APIs planned for later phases.
+belong to `iterate`, `iterateBatches`, `paginateCursor` and batched `bulkWrite`; see [Pagination and streaming](pagination.md).
 
 ## Safety rules
 
@@ -43,5 +43,4 @@ call with `options.session` never retry. `signal` cancels before dispatch and be
 retries, not an in-flight driver call.
 
 Indexes are not built automatically (`autoIndex` is off); call `model.createIndexes()` or
-`syncIndexes()` yourself. Types are tested against Mongoose 8; Mongoose 9 types are not
-yet verified locally.
+`syncIndexes()` yourself. Declarations are checked against both supported Mongoose majors by `npm run test:package`.
