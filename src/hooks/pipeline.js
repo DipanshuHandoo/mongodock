@@ -415,7 +415,11 @@ export function createExecutor({ config, admit, random = Math.random }) {
     let result;
     try {
       const input = await op.prepare();
-      result = await op.transform(await op.attempts(input, options.run));
+      const produced = await op.attempts(input, options.run);
+      result = await op.transform(produced);
+      if (typeof options.restoreResult === "function") {
+        result = options.restoreResult(produced, result);
+      }
     } catch (error) {
       throw await op.fail(error);
     }

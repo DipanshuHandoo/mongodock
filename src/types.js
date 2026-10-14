@@ -136,7 +136,18 @@
  * @typedef {<I extends ReadInput & CallOptions>(input: I) => Promise<(I["lean"] extends true ? import("mongoose").Require_id<DocOf<I["model"]>> : import("mongoose").HydratedDocument<DocOf<I["model"]>>) | null>} OneMethod
  * @typedef {(input: (WriteInput | ReadInput) & CallOptions) => Promise<any>} AnyMethod
  *
+ * @typedef {ReadInput & { page?: number, includeTotal?: boolean }} PageInput
+ * @typedef {ReadInput & { cursor?: string }} CursorInput
+ * @typedef {Omit<ReadInput, "limit" | "skip"> & { batchSize?: number }} IterateInput
+ * @typedef {IterateInput & { strategy?: "cursor" | "keyset", includeTotal?: boolean }} BatchInput
+ * @typedef {Omit<AggregateInput, "pipeline"> & { pipeline: readonly Record<string, unknown>[], batchSize?: number }} AggregateCursorInput
+ *
  * @typedef {object} OperationMethods
+ * @property {<I extends PageInput & CallOptions>(input: I) => Promise<OffsetPage<I["lean"] extends true ? import("mongoose").Require_id<DocOf<I["model"]>> : import("mongoose").HydratedDocument<DocOf<I["model"]>>>>} paginate
+ * @property {<I extends CursorInput & CallOptions>(input: I) => Promise<CursorPage<I["lean"] extends true ? import("mongoose").Require_id<DocOf<I["model"]>> : import("mongoose").HydratedDocument<DocOf<I["model"]>>>>} paginateCursor
+ * @property {<I extends IterateInput & CallOptions>(input: I) => AsyncGenerator<I["lean"] extends true ? import("mongoose").Require_id<DocOf<I["model"]>> : import("mongoose").HydratedDocument<DocOf<I["model"]>>, void, void>} iterate
+ * @property {<I extends BatchInput & CallOptions>(input: I) => AsyncGenerator<BatchEnvelope<I["lean"] extends true ? import("mongoose").Require_id<DocOf<I["model"]>> : import("mongoose").HydratedDocument<DocOf<I["model"]>>>, void, void>} iterateBatches
+ * @property {(input: AggregateCursorInput & CallOptions) => AsyncGenerator<any, void, void>} aggregateCursor
  * @property {ListMethod} find
  * @property {ListMethod} findAll
  * @property {OneMethod} findOne

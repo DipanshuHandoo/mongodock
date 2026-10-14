@@ -17,3 +17,4 @@ only, not implemented methods.
 - [Testing](testing.md)
 - [Troubleshooting](troubleshooting.md)
 - [Queries and writes](queries.md)
+- [Pagination and streaming](pagination.md)

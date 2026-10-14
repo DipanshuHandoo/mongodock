@@ -1,10 +1,20 @@
 import { InvalidOptionError } from "../errors.js";
+import { paginateCursorSpec } from "../pagination/cursor.js";
+import { paginateSpec } from "../pagination/offset.js";
+import { streamSpecs } from "../streaming/iterate.js";
 import { aggregateSpecs } from "./aggregate.js";
 import { isPlain } from "./guards.js";
 import { readSpecs } from "./reads.js";
 import { writeSpecs } from "./writes.js";
 
-const SPECS = Object.freeze([...readSpecs, ...writeSpecs, ...aggregateSpecs]);
+const SPECS = Object.freeze([
+  ...readSpecs,
+  paginateSpec,
+  paginateCursorSpec,
+  ...writeSpecs,
+  ...aggregateSpecs,
+  ...streamSpecs,
+]);
 export const OPERATION_METHODS = Object.freeze(SPECS.map((spec) => spec.method));
 
 /**
@@ -19,17 +29,18 @@ export const OPERATION_METHODS = Object.freeze(SPECS.map((spec) => spec.method))
  */
 export function createOperations({ executor, config, connection, resolveModel }) {
   const context = { limits: config.limits };
-  /** @type {Record<string, (params: any) => Promise<any>>} */
+  const env = Object.freeze({ connection, limits: config.limits });
+  /** @type {Record<string, (params: any) => any>} */
   const methods = {};
   for (const spec of SPECS) {
-    methods[spec.method] = async (params) => {
+    const invoke = (/** @type {any} */ params) => {
       if (!isPlain(params))
         throw new InvalidOptionError(`${spec.method} input must be a plain object`);
       const { model: reference, signal, correlationId, hooks, retry, metadata, ...body } = params;
       const model = resolveModel(reference);
       const input = spec.normalize(body, context);
       const session = input.options?.session;
-      return executor.execute({
+      const common = {
         method: spec.method,
         connection,
         model: model.modelName,
@@ -55,9 +66,23 @@ export function createOperations({ executor, config, connection, resolveModel })
           }
           return next;
         },
-        run: (/** @type {any} */ final) => spec.run(model, final),
+      };
+      if (spec.stream && spec.open) {
+        const { open } = spec;
+        return executor.executeStream({
+          ...common,
+          open: (/** @type {any} */ final, /** @type {any} */ ctx) => open(model, final, env, ctx),
+        });
+      }
+      const run = /** @type {NonNullable<typeof spec.run>} */ (spec.run);
+      return executor.execute({
+        ...common,
+        restoreResult: spec.restore,
+        run: (/** @type {any} */ final) => run(model, final, env),
       });
     };
+    // Materialized methods always reject rather than throw; streams validate synchronously.
+    methods[spec.method] = spec.stream ? invoke : async (params) => invoke(params);
   }
   return Object.freeze(methods);
 }

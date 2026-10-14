@@ -15,7 +15,7 @@ import {
 } from "./query-options.js";
 
 const NOT_FOR_READS = [...RETURN_ALIASES, "upsert", "runValidators", "multi"];
-const readOptions = (/** @type {unknown} */ value, /** @type {string} */ method) =>
+export const readOptions = (/** @type {unknown} */ value, /** @type {string} */ method) =>
   normalizeOptions(value, method, { forbid: NOT_FOR_READS });
 
 /** @typedef {import("./spec.js").OperationSpec} OperationSpec */

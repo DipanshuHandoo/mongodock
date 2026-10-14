@@ -129,3 +129,32 @@ async function operationTypes() {
   void present;
 }
 void operationTypes;
+
+async function pagingTypes() {
+  const page = await ops.paginate({ model: Widgets, lean: true, page: 2 });
+  const total: number | null = page.totalDocs;
+  const sku: string | undefined = page.docs[0]?.sku;
+  const keyset = await ops.paginateCursor({ model: Widgets, lean: true, sort: { sku: 1 } });
+  const next: string | null = keyset.nextCursor;
+  for await (const doc of ops.iterate({ model: Widgets, lean: true })) {
+    const qty: number = doc.qty;
+    void qty;
+  }
+  for await (const batch of ops.iterateBatches({
+    model: Widgets,
+    lean: true,
+    strategy: "keyset",
+  })) {
+    const size: number = batch.docs.length;
+    const batchTotal: number | null = batch.totalDocs;
+    void size;
+    void batchTotal;
+  }
+  for await (const row of ops.aggregateCursor({ model: Widgets, pipeline: [{ $match: {} }] })) {
+    void row;
+  }
+  void total;
+  void sku;
+  void next;
+}
+void pagingTypes;

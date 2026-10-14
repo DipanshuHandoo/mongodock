@@ -64,7 +64,9 @@ foundation:
   MIT, public publication configuration, and Node >=22.18.0.
 - The TypeScript `withRetry` sample has been replaced by checked JavaScript/
   JSDoc configuration, errors, and shared contracts. Build language is `js`.
-  No service factory, CRUD engine, or bulk/seed runtime is implemented yet.
+  Phases 1-5 are implemented (foundation, connections/models, hooks/plugins/retry,
+  CRUD and aggregation, pagination and streaming). Bulk, transactions, health and
+  seeding are not implemented yet.
 - Existing scripts provide ESM/CommonJS normal/minified builds, maps, declaration
   emission, Biome, Node tests, coverage gates, tarball checks, and Changesets.
 - CI covers Linux/Windows, Node 22/24, and Mongoose 8.24.5/9.11.2. The manual release workflow
