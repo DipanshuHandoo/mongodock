@@ -22,3 +22,4 @@ only, not implemented methods.
 - [Transactions](transactions.md)
 - [Health](health.md)
 - [Seeding](seeding.md)
+- [Scale and reliability](scale.md)

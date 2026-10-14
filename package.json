@@ -57,6 +57,7 @@
     "test": "node scripts/test.mjs",
     "test:coverage": "node scripts/test.mjs --coverage",
     "test:integration": "node scripts/test-integration.mjs",
+    "test:scale": "node scripts/test-scale.mjs",
     "demo:live": "node scripts/live-demo.mjs",
     "demo:live:cleanup": "node scripts/live-demo.mjs --cleanup",
     "lint": "node scripts/run.mjs --bin @biomejs/biome biome lint --error-on-warnings .",

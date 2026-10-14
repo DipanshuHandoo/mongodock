@@ -1,6 +1,6 @@
 # Phase 09: reliability, compatibility, and scale
 
-Status: planned. Prerequisites: Phases 05, 06, 07, 08.
+Status: partially implemented locally (scale harness, stream-to-seed integration); see docs/scale.md for open items. Prerequisites: Phases 05, 06, 07, 08.
 Authority: [master plan](../mongodock-implementation-plan.md);
 common rules: [phase index](README.md).
 
