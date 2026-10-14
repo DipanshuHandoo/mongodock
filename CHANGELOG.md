@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.2.0
+
+### Minor Changes
+
+- ee16956: Add idempotent `seed`: explicit unique-key upserts with real index verification, schema validation, within-batch duplicate rejection, `updateExisting`, no-write `dryRun`, and native or slot-pooled batched execution.
+- 7cab102: Add `paginate`, `paginateCursor`, `iterate`, `iterateBatches` and `aggregateCursor`: bounded offset pages with totals, bound keyset cursors, and lazy cursor streams with deterministic cleanup.
+- 63794d4: Add CRUD, existence, count and aggregation operations with bounded reads, mutation and pipeline safety guards, hook-validated input and read-only retry.
+- 9b1b826: Add `withTransaction` (explicit session plus a scoped, sequential operations facade, replay-aware, rollback-safe) and `healthCheck` (bounded ping probe, status-only mode, required-connection aggregate), plus `TransactionError`.
+- 7a10261: Add `bulkWrite` with native passthrough and slot-pooled batched mode (bounded memory, lazy sources, partial-failure reports, `onBatch`, cancellation) and `BulkError`.
+
+### Patch Changes
+
+- 125de85: Document scale and reliability evidence (`docs/scale.md`).
+- 4aa7d65: Live Mongo DB testing
+
 ## 0.1.0
 
 ### Minor Changes
