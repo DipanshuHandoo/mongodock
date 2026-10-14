@@ -1,5 +1,0 @@
----
-"@dipanshuhandoo/mongodock": patch
----
-
-initialize
