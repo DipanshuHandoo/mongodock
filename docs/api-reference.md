@@ -1,42 +1,65 @@
-# API reference: Phase 1
+# API reference
 
-All APIs below are available from the root export in ESM and CommonJS.
-Private source imports are unsupported.
+Everything is exported from the package root in ESM and CommonJS. Private source imports are
+unsupported. Every operation takes one object argument and returns a promise (or an async generator for
+streams). Methods exist on the service (default connection) and on `service.use(name)`.
 
-| Export | Contract |
-| --- | --- |
-| normalizeConfig(config) | Validates and freezes normalized wrapper configuration; no network I/O |
-| normalizeRetry(setting?, hasBeforeRetry?) | Validates a single effective retry policy; no retry execution |
-| normalizeBatchOptions(options?) | Validates native versus batched controls; no input consumption or writes |
-| DEFAULTS | Frozen default limit values |
-| HOOK_NAMES | Frozen supported registration names |
-| MongoDockError | Control error with code, cause, and database/invocation outcomes |
-| ConfigurationError | Invalid setup, ERR_CONFIGURATION |
-| InvalidOptionError | Invalid operation option, ERR_INVALID_OPTION |
-| isMongoDockError(value) | Instance type guard for package control errors |
-| toSafeDiagnostic(error) | Frozen diagnostic excluding messages, documents, URIs and causes |
-
-Root declarations include config, normalized config, hooks, plugins, retry
-settings, operation context, bulk report, batch/seed options, error/outcome types.
-Generic FindInput/CreateInput/MutationInput/BulkInput and page/envelope types
-describe future input contracts without exporting runtime methods. No declaration claims an executable
-factory or operation exists before its feature phase.
-
-Native causes are preserved and sensitive; safe diagnostics are intentionally
-minimal. See [Errors](errors-and-messages.md) and [Configuration](configuration.md).
-
-## Transactions and health
+## Factory
 
 | Export | Contract |
 | --- | --- |
-| TransactionError | Transaction scope misuse or commit/abort failure, ERR_TRANSACTION |
-| service.withTransaction(fn, options?) / use(name).withTransaction | Runs fn with tx = {session, ops, attempt, transactionId, signal}; see [Transactions](transactions.md) |
-| service.healthCheck(options?) | Aggregate readiness across connections; see [Health](health.md) |
-| use(name).healthCheck(options?) | Per-connection status and ping probe |
+| `createMongoService(config)` | Returns a service over owned (or supplied) Mongoose connections. Opens nothing until `connect`/`connectAll` |
 
-## Seeding
+## Service
+
+| Group | Methods | Guide |
+| --- | --- | --- |
+| Lifecycle | `connect(name?)`, `connectAll()`, `disconnect(name?)`, `disconnectAll()`, `use(name)`, `getConnection(name?)`, `getStatus`, `listStatuses`, `listConnections`, `isConnected` | [Connections](connections.md) |
+| Models | `registerModel`, `registerModels`, `getModel`, `hasModel`, `listModels`, `unregisterModel` | [Models](models.md) |
+| Reads | `find`, `findAll`, `findOne`, `findById`, `exists`, `countDocuments`, `aggregate` | [Queries](queries.md) |
+| Writes | `create`, `insertMany`, `updateOne`, `updateMany`, `deleteOne`, `deleteMany`, `findOneAndUpdate`, `findByIdAndUpdate`, `findOneAndDelete`, `findByIdAndDelete` | [Queries](queries.md) |
+| Pages and streams | `paginate`, `paginateCursor`, `iterate`, `iterateBatches`, `aggregateCursor` | [Pagination](pagination.md) |
+| Bulk and seed | `bulkWrite` (native or `batching: true`), `seed` (native, batched, dry-run) | [Bulk](bulk-processing.md), [Seeding](seeding.md) |
+| Transactions | `withTransaction(fn, options?)`; `fn` receives `{ session, ops, attempt, transactionId, signal }` | [Transactions](transactions.md) |
+| Health | `healthCheck(options?)` (aggregate) and `use(name).healthCheck(options?)` | [Health](health.md) |
+
+## Helpers and constants
 
 | Export | Contract |
 | --- | --- |
-| service.seed(input) / use(name).seed | Idempotent unique-key upserts with dry-run; returns a BulkWriteResult, a BulkReport (batching) or a dry-run report; see [Seeding](seeding.md) |
+| `normalizeConfig(config)` | Validates and freezes wrapper configuration; no network I/O. Retains URIs, so do not log the result |
+| `normalizeRetry(setting?, hasBeforeRetry?)` | Validates one effective retry policy; no retry execution |
+| `normalizeBatchOptions(options?)` | Validates native versus batched controls; no input consumption or writes |
+| `DEFAULTS` | Frozen default limit values |
+| `HOOK_NAMES` | Frozen supported hook names |
+| `isMongoDockError(value)` | Type guard for package control errors |
+| `toSafeDiagnostic(error)` | Frozen diagnostic with no messages, documents, URIs or causes |
 
+## Errors
+
+All extend `MongoDockError` (`code`, `cause`, `databaseOutcome`, `invocationOutcome`).
+
+| Class | Code |
+| --- | --- |
+| `ConfigurationError` | `ERR_CONFIGURATION` |
+| `InvalidOptionError` | `ERR_INVALID_OPTION` |
+| `ConnectionError` | `ERR_CONNECTION` |
+| `ModelRegistrationError` | `ERR_MODEL_REGISTRATION` |
+| `OperationVetoError` | `ERR_OPERATION_VETO` |
+| `OperationAbortedError` | `ERR_ABORTED` |
+| `HookError` | `ERR_HOOK` |
+| `ShutdownTimeoutError` | `ERR_SHUTDOWN_TIMEOUT` |
+| `BulkError` | `ERR_BULK` |
+| `TransactionError` | `ERR_TRANSACTION` |
+
+Native database errors (validation, cast, duplicate key) keep their original shape and causes.
+Causes are sensitive; use `toSafeDiagnostic` for logging. See [Errors](errors-and-messages.md).
+
+## Types
+
+Declarations ship for both module modes: `MongoService`, `ConnectionView`, `ConnectionStatus`,
+`ModelDefinition`, `MongoServiceConfig`, `NormalizedConfig`, `Hooks`, `Plugin`, `RetryOptions`,
+`OperationContext`, `BulkReport`, `BulkBatchOutcome`, `BatchOptions`, `NativeSeedInput`,
+`BatchedSeedInput`, `SeedDryRunReport`, `TransactionContext`, `TransactionOptions`, `HealthOptions`,
+`ConnectionHealth`, `ServiceHealth`, `FindInput`, `CreateInput`, `MutationInput`, `BulkInput`,
+`OffsetPage`, `CursorPage`, `BatchEnvelope`, `ErrorCode`, `DatabaseOutcome`, `InvocationOutcome`.

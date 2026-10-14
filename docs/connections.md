@@ -58,4 +58,4 @@ Mongoose events map to `onConnectionConnecting`, `onConnectionConnected`,
 affect connection state.
 
 Standalone MongoDB servers are fine for connection management; transactions
-(later phases) require a replica set.
+(`withTransaction`) require a replica set.

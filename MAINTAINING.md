@@ -52,8 +52,11 @@ Prereleases: `npx changeset pre enter next` ... `npx changeset pre exit`.
    create and approve pull requests" (needed by `version.yml`). PRs opened with the default
    token do not trigger CI; close and reopen the Version PR (or use a GitHub App/PAT) so
    required checks run.
-4. **Branch protection for `main`** — require pull requests and the CI checks
-   (`verify (...)`, `changeset present`, `npm audit`); restrict who can push.
+4. **Branch protection for `main`** - require pull requests and these checks, with the source set
+   to GitHub Actions: the eight `verify (<os>, node <22|24>, mongoose <8.24.5|9.11.2>)` jobs, the
+   two `integration (mongodb 7.0, mongoose <version>)` jobs, `scale (ubuntu, node 24)` and
+   `changeset present`. `npm audit` is advisory; restrict who can push. Names change when the
+   matrix changes, so update the list with it.
 5. **Security features** — enable Dependabot alerts/updates, secret scanning and private
    vulnerability reporting.
 6. Update `.github/CODEOWNERS` if the owner differs.
@@ -70,3 +73,16 @@ Prereleases: `npx changeset pre enter next` ... `npx changeset pre exit`.
   test:package` verifies ESM/CJS parity for every export.
 - Dependencies: a package with runtime dependencies keeps them out of the bundle automatically
   (`build.mjs` marks them external); add them to `dependencies`, not `devDependencies`.
+
+## Release readiness checklist
+
+Code-side gates are `npm run verify`, `npm run test:scale` and `npm run pack:check`; CI
+re-runs them on the exact commit and the Release workflow refuses to start without a green CI run.
+These cannot be established from the repository and must be confirmed by a maintainer:
+
+- npm scope permission and the trusted-publisher binding (setup step 1)
+- the protected `npm` environment with a real reviewer (setup step 2)
+- green CI on the full matrix for the release commit
+- adoption in a real consuming application (see [migration guide](docs/migration.md)); until then,
+  production stability is unproven
+- explicit authorization to publish

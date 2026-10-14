@@ -5,9 +5,6 @@ Execution order is always: plugins (registration order) → service hooks → ca
 awaited sequentially. Every hook has a time budget (`limits.hookTimeoutMS`, default 5000 ms).
 A hook that exceeds it is abandoned, not cancelled; cooperate through `context.signal`.
 
-> Status: the lifecycle engine and connection observers are available now. Operation methods
-> (`find`, `create`, …) arrive in Phase 4 and run through this same lifecycle.
-
 ## Hook reference
 
 | Hook | Receives | May return |

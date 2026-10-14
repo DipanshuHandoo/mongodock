@@ -6,13 +6,11 @@ is `failed`. Explicit outcomes distinguish committed database success from a
 failed post-execution invocation. Optional operationId/connection identify work.
 
 `ConfigurationError` uses `ERR_CONFIGURATION`; `InvalidOptionError` uses
-`ERR_INVALID_OPTION`. Shared ErrorCode declarations reserve the remaining
-connection/model/veto/hook/abort/shutdown/bulk/transaction codes for later phases.
-No unimplemented error subclasses are exported.
+`ERR_INVALID_OPTION`. Subclasses cover connection, model registration, veto, hook, abort, shutdown, bulk and transaction
+failures; each has a stable `ErrorCode`.
 
-`isMongoDockError` narrows package errors. Native Mongoose errors will retain
-their original codes/details in later operations, not be erased by a generic
-wrapper.
+`isMongoDockError` narrows package errors. Native Mongoose errors keep
+their original codes/details; they are not erased by a generic wrapper.
 
 `toSafeDiagnostic(error)` does not serialize native messages or causes. For
 unrecognized errors it reports `ERR_DATABASE` and uncertain outcome; this is a

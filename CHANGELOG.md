@@ -1,5 +1,6 @@
 # Changelog
 
+Release notes are generated from changesets when the **Version Packages** PR is merged.
 ## 0.2.0
 
 ### Minor Changes
