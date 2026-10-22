@@ -4,6 +4,19 @@ on:
   pull_request:
   push:
     branches: [main]
+    # Release-metadata commits (version bumps, changelog) contain no analyzable code.
+    paths:
+      - "src/**"
+      - "scripts/**"
+      - "test/**"
+      - "examples/**"
+      - "**/*.js"
+      - "**/*.mjs"
+      - "**/*.cjs"
+      - "**/*.ts"
+      - "**/*.mts"
+      - "**/*.cts"
+      - ".github/workflows/**"
   schedule:
     - cron: "17 3 * * 1"
 
