@@ -1,6 +1,16 @@
 # Changelog
 
 Release notes are generated from changesets when the **Version Packages** PR is merged.
+## 2.0.0
+
+### Major Changes
+
+- 72a3fbf: Mongo Connection and Data Collection library
+
+### Patch Changes
+
+- 43f3103: docs update
+
 ## 1.0.0
 
 ### Major Changes
