@@ -1,6 +1,12 @@
 # Changelog
 
 Release notes are generated from changesets when the **Version Packages** PR is merged.
+## 2.0.1
+
+### Patch Changes
+
+- c9c0a6a: github actions optimizations
+
 ## 2.0.0
 
 ### Major Changes
