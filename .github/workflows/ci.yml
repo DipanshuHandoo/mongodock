@@ -11,11 +11,50 @@ permissions:
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  # Release requires a green CI run on the exact main commit, so main runs are never cancelled.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  scope:
+    name: scope
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      full: ${{ steps.classify.outputs.full }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      # A push to main that only changes release metadata (e.g. a merged "Version Packages" PR)
+      # ships the same code as the previous main commit. When that commit already has a green
+      # CI run, the test matrix is skipped. Anything else runs full CI.
+      - id: classify
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_NAME: ${{ github.event_name }}
+          BEFORE: ${{ github.event.before }}
+          SHA: ${{ github.sha }}
+        run: |
+          full=true
+          if [ "$EVENT_NAME" = "push" ] && node scripts/ci-scope.mjs "$BEFORE" "$SHA"; then
+            passed=$(gh run list --workflow ci.yml --commit "$BEFORE" --status success --json databaseId --jq length || echo 0)
+            if [ "$passed" != "0" ]; then
+              full=false
+              echo "::notice::Release-metadata-only commit; reusing green CI from ${BEFORE}"
+            else
+              echo "Previous commit ${BEFORE} has no green CI run; running full CI"
+            fi
+          fi
+          echo "full=$full" >> "$GITHUB_OUTPUT"
+
   verify:
     name: verify (${{ matrix.os }}, node ${{ matrix.node-version }}, mongoose ${{ matrix.mongoose }})
+    needs: scope
+    if: needs.scope.outputs.full == 'true'
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     strategy:
@@ -42,6 +81,8 @@ jobs:
 
   integration-mongo-7:
     name: integration (mongodb 7.0, mongoose ${{ matrix.mongoose }})
+    needs: scope
+    if: needs.scope.outputs.full == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     strategy:
@@ -65,6 +106,8 @@ jobs:
 
   scale:
     name: scale (ubuntu, node 24)
+    needs: scope
+    if: needs.scope.outputs.full == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:

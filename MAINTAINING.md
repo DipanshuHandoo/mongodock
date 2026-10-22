@@ -19,7 +19,10 @@ flowchart LR
    to opt out deliberately. Make `changeset present` a required check (see setup below).
 2. Merging to `main` makes `version.yml` open/update a **Version Packages** PR (bumps
    `package.json` and the lockfile, writes `CHANGELOG.md`).
-3. Merge that PR when you want to release.
+3. Merge that PR when you want to release. CI's `scope` job sees that the merge only changes
+   release metadata (changesets, `CHANGELOG.md`, version fields) and, if the previous `main`
+   commit already has a green CI run, skips the test matrix. CodeQL does not run for it either.
+   Any other change, or a previous commit without green CI, runs the full matrix.
 4. Locally, `git pull` and run `npm run release`. It checks: version/lockfile/changelog agree,
    no pending changesets, clean and pushed tree, and that the version is not already on the
    registry. It never publishes.
@@ -82,7 +85,8 @@ These cannot be established from the repository and must be confirmed by a maint
 
 - npm scope permission and the trusted-publisher binding (setup step 1)
 - the protected `npm` environment with a real reviewer (setup step 2)
-- green CI on the full matrix for the release commit
+- green CI on the full matrix for the release commit (or, for a version-only commit, for the
+  previous `main` commit it reuses)
 - adoption in a real consuming application (see [migration guide](docs/migration.md)); until then,
   production stability is unproven
 - explicit authorization to publish
