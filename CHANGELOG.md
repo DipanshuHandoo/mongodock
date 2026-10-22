@@ -5,14 +5,21 @@ Release notes are generated from changesets when the **Version Packages** PR is 
 
 ### Major Changes
 
-- bffba36: All 10 phases completed
 - 72a3fbf: Mongo Connection and Data Collection library
 
 ### Patch Changes
 
-- bffba36: Reconcile README and guides with the implemented API, add a migration guide, and replace the stale foundation-only examples.
 - 43f3103: docs update
-- 4423b78: package bump
+
+## 1.0.0
+
+### Major Changes
+
+- bffba36: All 10 phases completed
+
+### Patch Changes
+
+- bffba36: Reconcile README and guides with the implemented API, add a migration guide, and replace the stale foundation-only examples.
 
 ## 0.2.0
 
