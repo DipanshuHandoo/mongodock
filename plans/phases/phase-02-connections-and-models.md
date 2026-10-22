@@ -1,6 +1,6 @@
 # Phase 02: connections and model registry
 
-Status: implemented locally (uncommitted); Linux/Docker acceptance deferred by the user. Prerequisite: Phase 01.
+Status: implemented and merged; Linux/Docker acceptance deferred by the user. Prerequisite: Phase 01.
 Authority: [master plan](../mongodock-implementation-plan.md);
 common rules: [phase index](README.md).
 

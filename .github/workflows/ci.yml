@@ -34,7 +34,7 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Select tested Mongoose peer without changing the lockfile
-        run: npm install --no-save --package-lock=false --ignore-scripts mongoose@${{ matrix.mongoose }}
+        run: npm install --no-save --ignore-scripts mongoose@${{ matrix.mongoose }}
       - name: Install Chromium (browser-enabled packages only)
         if: hashFiles('scripts/check-browser.mjs') != ''
         run: npx playwright install --with-deps chromium
@@ -58,7 +58,7 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Select tested Mongoose peer without changing the lockfile
-        run: npm install --no-save --package-lock=false --ignore-scripts mongoose@${{ matrix.mongoose }}
+        run: npm install --no-save --ignore-scripts mongoose@${{ matrix.mongoose }}
       - run: npm run test:integration
         env:
           MONGODOCK_TEST_MONGO_VERSION: "7.0"

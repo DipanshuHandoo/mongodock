@@ -120,7 +120,7 @@ jobs:
         env:
           TARBALL: ${{ needs.verify.outputs.tarball }}
           DIST_TAG: ${{ needs.verify.outputs.dist-tag }}
-        run: npm publish "release-artifact/$TARBALL" --tag "$DIST_TAG" --access public --provenance
+        run: npm publish "./release-artifact/$TARBALL" --tag "$DIST_TAG" --access public --provenance
 
   finalize:
     name: tag and GitHub release

@@ -2,11 +2,12 @@
 
 ## Status and authority
 
-Phase 01 is completed for local delivery following user authorization. Its local
-foundation verification passes; the user deferred Docker/cross-platform
-acceptance on 2026-10-13. Linux fixture readiness remains unverified.
-Later phases, publication, commit, and push
-are not authorized by the Phase 01 request.
+Phases 01-10 are implemented and verified locally (`npm run verify`, `test:scale` and the
+MongoDB 7.0/8.0 and Mongoose 8/9 integration runs on Windows); Phases 01-09 are merged to `main`.
+Still open and not claimed: the GitHub CI matrix result (Linux, Node 22, Mongoose 8), network-drop
+fault injection, CI benchmark numbers, adoption by a real consuming application, and the external
+release controls (branch protection, `npm` environment reviewers, npm trusted publisher).
+Publication, tagging and release remain unauthorized until the user explicitly asks.
 This is the consolidated implementation plan, replacing the former
 mongoose-service-toolkit plan. Its applicable requirements and future-roadmap
 ideas are retained here; obsolete implementation and validation claims are
