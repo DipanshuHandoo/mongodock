@@ -1,6 +1,12 @@
 # Changelog
 
 Release notes are generated from changesets when the **Version Packages** PR is merged.
+## 2.0.2
+
+### Patch Changes
+
+- ebd7767: ci update
+
 ## 2.0.1
 
 ### Patch Changes
