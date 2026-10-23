@@ -51,7 +51,15 @@ async function main() {
   await runNpm(["run", "verify"]);
   await confirm(user);
   log("Publishing (npm will ask for your 2FA code)");
-  await runNpm(["publish", "--access", "public", "--tag", distTag, "--ignore-scripts"]);
+  await runNpm([
+    "publish",
+    "--access",
+    "public",
+    "--tag",
+    distTag,
+    "--provenance=false",
+    "--ignore-scripts",
+  ]);
   log(
     `Published ${spec}. Next: add the Trusted Publisher on npmjs.com so releases can use the workflow.`,
   );
