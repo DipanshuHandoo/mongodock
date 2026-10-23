@@ -90,3 +90,7 @@ These cannot be established from the repository and must be confirmed by a maint
 - adoption in a real consuming application (see [migration guide](docs/migration.md)); until then,
   production stability is unproven
 - explicit authorization to publish
+
+## First publish without GitHub access
+
+When the Release workflow cannot be dispatched (or npm has no trusted publisher yet), a maintainer can do a one-time bootstrap publish: `npm login`, then `npm run publish:bootstrap`. It requires a clean `main` equal to `origin/main`, an unpublished version, a full `npm run verify` and a typed version confirmation, then publishes with `--ignore-scripts` (no provenance). Afterwards configure the trusted publisher and use the workflow for every later release.

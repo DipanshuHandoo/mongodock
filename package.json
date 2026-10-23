@@ -69,6 +69,7 @@
     "pack:check": "node scripts/check-package.mjs --pack-only",
     "publish:dry": "npm publish --dry-run --provenance=false",
     "release": "node scripts/release.mjs",
+    "publish:bootstrap": "node scripts/publish-local.mjs",
     "changeset": "changeset",
     "version": "changeset version && npm install --package-lock-only --ignore-scripts",
     "prepublishOnly": "node scripts/release.mjs --prepublish-guard"
